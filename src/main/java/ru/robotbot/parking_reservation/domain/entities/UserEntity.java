@@ -1,5 +1,6 @@
 package ru.robotbot.parking_reservation.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,9 +22,10 @@ public class UserEntity {
     @Column(unique = true)
     private String phoneNumber;
 
+    @JsonIgnore
     private String password;
 
-    private String roles;
+    private String role;
 
     @Column(unique = true)
     private String email;

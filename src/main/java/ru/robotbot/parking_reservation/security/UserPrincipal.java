@@ -1,37 +1,37 @@
-package ru.robotbot.parking_reservation.config;
+package ru.robotbot.parking_reservation.security;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.robotbot.parking_reservation.domain.entities.UserEntity;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
-public class MyUserDetails implements UserDetails {
+@Getter
+@Builder
+public class UserPrincipal implements UserDetails {
 
-    private UserEntity userEntity;
-
-    public MyUserDetails(UserEntity userEntity) {
-        this.userEntity = userEntity;
-    }
+    private final Long userId;
+    private final String phoneNumber;
+    @JsonIgnore
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(userEntity.getRoles().split(", "))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return authorities;
     }
 
     @Override
     public String getPassword() {
-        return userEntity.getPassword();
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return userEntity.getPhoneNumber();
+        return phoneNumber;
     }
 
     @Override
