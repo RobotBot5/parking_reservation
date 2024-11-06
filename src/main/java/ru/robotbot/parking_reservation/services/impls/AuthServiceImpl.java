@@ -19,11 +19,9 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
     public LoginResponse attemptLogin(String phoneNumber, String password) {
-        System.out.println("asdasdasd");
         var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(phoneNumber, password)
         );
-        System.out.println("asdasdasd");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         var principal = (UserPrincipal) authentication.getPrincipal();
 

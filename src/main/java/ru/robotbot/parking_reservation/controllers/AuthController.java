@@ -26,13 +26,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody @Validated LoginRequest request) {
-        System.out.println("login: " + request.getPhoneNumber());
-        System.out.println("password " + request.getPassword());
         return authService.attemptLogin(request.getPhoneNumber(), request.getPassword());
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Validated UserDto userDto) {
+    public ResponseEntity<String> registerUser(@RequestBody @Validated UserDto userDto) {
 
         if (userService.isUserExists(userDto.getPhoneNumber())) {
             return ResponseEntity.badRequest().body("Phone number already in use");

@@ -22,7 +22,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(UserDto userDto, PasswordEncoder passwordEncoder) {
         UserEntity userEntity = userMapper.mapFrom(userDto);
-        userEntity.setRole("ROLE_USER");
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         userRepository.save(userEntity);
     }
@@ -34,7 +33,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserEntity> getUserByPhoneNumber(String phoneNumber) {
-        System.out.println(userRepository.findByPhoneNumber(phoneNumber));
         return userRepository.findByPhoneNumber(phoneNumber);
     }
 }

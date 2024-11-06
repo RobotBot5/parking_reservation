@@ -20,6 +20,8 @@ public class UserMapper implements Mapper<UserEntity, UserDto> {
 
     @Override
     public UserEntity mapFrom(UserDto userDto) {
-        return modelMapper.map(userDto, UserEntity.class);
+        UserEntity userEntity = modelMapper.map(userDto, UserEntity.class);
+        userEntity.setRole("ROLE_USER");
+        return userEntity;
     }
 }
