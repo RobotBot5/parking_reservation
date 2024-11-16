@@ -17,6 +17,8 @@ import ru.robotbot.parking_reservation.services.ReservationService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -62,5 +64,27 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationEntity> getAllByStatus(ReservationType reservationType) {
         return reservationRepository.findAllByReservationType(reservationType);
+    }
+
+    @Override
+    public List<ReservationEntity> getAllReservations() {
+        return StreamSupport.stream(reservationRepository
+                                .findAll()
+                                .spliterator(),
+                        false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReservationEntity> getAllByUserId(Long id) {
+        UserEntity userEntity = userRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return reservationRepository.findAllByUserEntity(userEntity);
+    }
+
+    @Override
+    public Optional<ReservationEntity> findById(Long id) {
+        return reservationRepository.findById(id);
     }
 }

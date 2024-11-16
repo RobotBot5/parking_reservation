@@ -33,9 +33,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return "Invalid reservation type: " + ex.getValue() +
-                "\nUser one of this: ACTIVE, EXPIRED, CANCELED";
+    public Map<String, String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put(
+                "error",
+                "Invalid reservation type: " + ex.getValue() +
+                        "\nUser one of this: ACTIVE, EXPIRED, CANCELED"
+                );
+        return errorResponse;
     }
 
 //    @ExceptionHandler(ConstraintViolationException.class)

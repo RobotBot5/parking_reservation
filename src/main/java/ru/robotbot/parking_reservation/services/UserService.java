@@ -10,7 +10,9 @@ public interface UserService {
 
     void addUser(UserDto userDto, PasswordEncoder passwordEncoder);
 
-    boolean isUserExists(String phoneNumber);
+    boolean isUserExistsByPhoneNumber(String phoneNumber);
+
+    boolean isUserExistsById(Long id);
 
     Optional<UserEntity> getUserByPhoneNumber(String phoneNumber);
 

@@ -15,4 +15,10 @@ public interface ReservationService {
     Optional<ReservationEntity> getReservationByUser(UserPrincipal user);
 
     List<ReservationEntity> getAllByStatus(ReservationType reservationType);
+
+    List<ReservationEntity> getAllReservations();
+
+    List<ReservationEntity> getAllByUserId(Long id);
+
+    Optional<ReservationEntity> findById(Long id);
 }

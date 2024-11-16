@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.robotbot.parking_reservation.domain.dto.UserDto;
 import ru.robotbot.parking_reservation.domain.entities.LoginRequest;
 import ru.robotbot.parking_reservation.domain.entities.LoginResponse;
-import ru.robotbot.parking_reservation.domain.entities.UserEntity;
 import ru.robotbot.parking_reservation.services.AuthService;
 import ru.robotbot.parking_reservation.services.UserService;
 
@@ -32,7 +31,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody @Validated UserDto userDto) {
 
-        if (userService.isUserExists(userDto.getPhoneNumber())) {
+        if (userService.isUserExistsByPhoneNumber(userDto.getPhoneNumber())) {
             return ResponseEntity.badRequest().body("Phone number already in use");
         }
 
