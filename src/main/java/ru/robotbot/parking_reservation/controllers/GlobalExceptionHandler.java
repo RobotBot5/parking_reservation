@@ -8,7 +8,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,13 @@ public class GlobalExceptionHandler {
         }
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return "Invalid reservation type: " + ex.getValue() +
+                "\nUser one of this: ACTIVE, EXPIRED, CANCELED";
     }
 
 //    @ExceptionHandler(ConstraintViolationException.class)
