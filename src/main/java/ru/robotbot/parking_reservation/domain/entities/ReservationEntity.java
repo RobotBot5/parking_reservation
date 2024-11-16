@@ -36,6 +36,7 @@ public class ReservationEntity {
     private Boolean isPaid;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private ReservationType reservationType;
 
 }
