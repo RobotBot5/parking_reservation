@@ -15,6 +15,7 @@ import ru.robotbot.parking_reservation.repositories.UserRepository;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.ReservationService;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,15 +32,29 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public int createReservation(ReservationDto reservationDto, UserPrincipal userPrincipal) {
+        var startTime = reservationDto.getStartTime();
+        var endTime = reservationDto.getEndTime();
+        UserEntity userEntity = userRepository
+                .findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (reservationRepository.existsByUserEntityAndReservationType(
+                userEntity,
+                ReservationType.ACTIVE
+        )) {
+            return 5; // One user can have only one active reservation
+        }
+        if (startTime.isAfter(endTime)) {
+            return 3; // Start time is after before time
+        }
+        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
+            return 4; // Reservation's time must be at least 30 minutes
+        }
         Optional<ParkingSpotEntity> parkingSpotEntityFromDb = parkingSpotRepository
                 .findById(reservationDto.getParkingSpotId());
         ParkingSpotEntity parkingSpotEntity = parkingSpotEntityFromDb.orElse(null);
         if (parkingSpotEntity == null) {
             return 1; // parkingSpot with this id doesn't exist
         }
-        UserEntity userEntity = userRepository
-                .findById(userPrincipal.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
         ReservationEntity reservationEntity = mapper.mapFrom(reservationDto);
         reservationEntity.setParkingSpotEntity(parkingSpotEntity);
         reservationEntity.setUserEntity(userEntity);

@@ -18,7 +18,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/reservations")
 @RequiredArgsConstructor
-public class ReservationsController {
+public class UserReservationsController {
 
     private final ReservationService reservationService;
 
@@ -57,6 +57,18 @@ public class ReservationsController {
             case 2:
                 response.put("status", "error");
                 response.put("message", "This time for this parking spot is already reserved");
+                return ResponseEntity.badRequest().body(response);
+            case 3:
+                response.put("status", "error");
+                response.put("message", "Start time must be before end time");
+                return ResponseEntity.badRequest().body(response);
+            case 4:
+                response.put("status", "error");
+                response.put("message", "Reservation's time must be at least 30 minutes");
+                return ResponseEntity.badRequest().body(response);
+            case 5:
+                response.put("status", "error");
+                response.put("message", "One user can have only one active reservation");
                 return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");

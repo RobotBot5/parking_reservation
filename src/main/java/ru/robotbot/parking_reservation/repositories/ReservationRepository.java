@@ -29,4 +29,6 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     List<ReservationEntity> findAllByReservationType(ReservationType reservationType);
     List<ReservationEntity> findAllByUserEntity(UserEntity userEntity);
 
+    boolean existsByUserEntityAndReservationType(UserEntity userEntity, ReservationType reservationType);
+
 }
