@@ -21,4 +21,6 @@ public interface ReservationService {
     List<ReservationEntity> getAllByUserId(Long id);
 
     Optional<ReservationEntity> findById(Long id);
+
+    int cancelReservation(UserPrincipal userPrincipal);
 }

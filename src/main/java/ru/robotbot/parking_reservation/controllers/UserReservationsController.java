@@ -70,6 +70,10 @@ public class UserReservationsController {
                 response.put("status", "error");
                 response.put("message", "One user can have only one active reservation");
                 return ResponseEntity.badRequest().body(response);
+            case 6:
+                response.put("status", "error");
+                response.put("message", "Start time has passed");
+                return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");
                 response.put("message", "Unknown error occurred");
@@ -83,6 +87,31 @@ public class UserReservationsController {
         ReservationEntity reservationEntity = reservationByUser.orElse(null);
         if (reservationEntity == null) return ResponseEntity.notFound().build();
         else return ResponseEntity.ok(reservationEntity);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Map<String, Object>> cancelReservation(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        int reservationAccept = reservationService.cancelReservation(userPrincipal);
+
+        Map<String, Object> response = new HashMap<>();
+        switch (reservationAccept) {
+            case 0:
+                response.put("status", "success");
+                response.put("message", "Reservation is canceled");
+                return ResponseEntity.ok(response);
+            case 1:
+                response.put("status", "error");
+                response.put("message", "User doesn't have active reservation");
+                return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "Reservation can be canceled only at 30 minutes");
+                return ResponseEntity.badRequest().body(response);
+            default:
+                response.put("status", "error");
+                response.put("message", "Unknown error occurred");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.robotbot.parking_reservation.domain.dto.UserDto;
-import ru.robotbot.parking_reservation.domain.entities.LoginRequest;
-import ru.robotbot.parking_reservation.domain.entities.LoginResponse;
+import ru.robotbot.parking_reservation.domain.dto.LoginRequest;
+import ru.robotbot.parking_reservation.domain.dto.LoginResponse;
 import ru.robotbot.parking_reservation.services.AuthService;
 import ru.robotbot.parking_reservation.services.UserService;
 

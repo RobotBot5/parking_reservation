@@ -6,7 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import ru.robotbot.parking_reservation.domain.entities.LoginResponse;
+import ru.robotbot.parking_reservation.domain.dto.LoginResponse;
 import ru.robotbot.parking_reservation.security.JwtIssuer;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.AuthService;

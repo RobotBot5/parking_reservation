@@ -1,4 +1,4 @@
-package ru.robotbot.parking_reservation.domain.entities;
+package ru.robotbot.parking_reservation.domain.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
