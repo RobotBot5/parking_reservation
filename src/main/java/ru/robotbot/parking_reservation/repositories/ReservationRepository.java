@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ru.robotbot.parking_reservation.domain.entities.ParkingSpotEntity;
 import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
 import ru.robotbot.parking_reservation.domain.entities.UserEntity;
 import ru.robotbot.parking_reservation.domain.enums.ReservationType;
@@ -30,5 +31,9 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     List<ReservationEntity> findAllByUserEntity(UserEntity userEntity);
 
     Optional<ReservationEntity> findByUserEntityAndReservationType(UserEntity userEntity, ReservationType reservationType);
+
+    @Query("SELECT r.parkingSpotEntity FROM ReservationEntity r " +
+            "WHERE r.reservationType = 'ACTIVE'")
+    List<ParkingSpotEntity> findOccupiedParkingSpots();
 
 }

@@ -11,15 +11,15 @@ VALUES
     (1, 'А111АА123');
 
 -- Вставка парковочных мест
-INSERT INTO parking_spots (number, zone, is_occupied)
+INSERT INTO parking_spots (number, zone)
 VALUES
-    (1, 'A', FALSE),
-    (2, 'A', TRUE),
-    (3, 'B', FALSE),
-    (4, 'B', TRUE),
-    (5, 'C', FALSE),
-    (6, 'C', TRUE),
-    (7, 'A', FALSE),
-    (8, 'A', TRUE),
-    (9, 'B', FALSE),
-    (10, 'C', TRUE);
+    (1, 'A'),
+    (2, 'A'),
+    (3, 'B'),
+    (4, 'B'),
+    (5, 'C'),
+    (6, 'C'),
+    (7, 'A'),
+    (8, 'A'),
+    (9, 'B'),
+    (10, 'C');
