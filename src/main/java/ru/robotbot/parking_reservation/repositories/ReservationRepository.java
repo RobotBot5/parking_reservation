@@ -36,4 +36,6 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
             "WHERE r.reservationType = 'ACTIVE'")
     List<ParkingSpotEntity> findOccupiedParkingSpots();
 
+    List<ReservationEntity> findAllByParkingSpotEntity(ParkingSpotEntity parkingSpotEntity);
+
 }
