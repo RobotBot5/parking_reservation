@@ -20,6 +20,5 @@ CREATE TABLE IF NOT EXISTS users_car_states (
 CREATE TABLE IF NOT EXISTS parking_spots (
                                              id SERIAL PRIMARY KEY,
                                              number INTEGER NOT NULL,
-                                             zone VARCHAR(50) NOT NULL,
-                                             is_occupied BOOLEAN NOT NULL
+                                             zone VARCHAR(50) NOT NULL
 );

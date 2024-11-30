@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
 
 @Data
 @NoArgsConstructor
@@ -20,8 +21,7 @@ public class ParkingSpotEntity {
 
     private Integer number;
 
-    private String zone;
-
-    private Boolean isOccupied;
+    @Enumerated(EnumType.STRING)
+    private ParkingSpotZone zone;
 
 }

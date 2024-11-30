@@ -1,5 +1,6 @@
 package ru.robotbot.parking_reservation.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -33,13 +34,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    public Map<String, String> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request
+    ) {
+        String endpoint = request.getRequestURI();
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put(
-                "error",
-                "Invalid reservation type: " + ex.getValue() +
-                        "\nUser one of this: ACTIVE, EXPIRED, CANCELED"
-                );
+        if (endpoint.endsWith("/parking-spots")) {
+            errorResponse.put(
+                    "error",
+                    "Invalid parking spot zone: " + ex.getValue() +
+                            ". Use one of this: A, B, C, D"
+            );
+        } else if (endpoint.endsWith("/reservations")) {
+            errorResponse.put(
+                    "error",
+                    "Invalid reservation type: " + ex.getValue() +
+                            ". Use one of this: ACTIVE, EXPIRED, CANCELED"
+            );
+        }
         return errorResponse;
     }
 

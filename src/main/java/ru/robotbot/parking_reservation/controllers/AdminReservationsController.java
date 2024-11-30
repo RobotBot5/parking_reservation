@@ -20,24 +20,6 @@ public class AdminReservationsController {
     private final ReservationService reservationService;
     private final UserService userService;
 
-//    @GetMapping
-//    public List<ReservationEntity> getReservations() {
-//        return reservationService.getAllReservations();
-//    }
-//
-//    @GetMapping
-//    public List<ReservationEntity> getReservationsByType(@RequestParam ReservationType reservationType) {
-//        return reservationService.getAllByStatus(reservationType);
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<?> getReservationsByUserId(@RequestParam Long userId) {
-//        if(!userService.isUserExistsById(userId)) {
-//            return ResponseEntity.badRequest().body("User with id " + userId + " doesn't exists");
-//        }
-//        return ResponseEntity.ok(reservationService.getAllByUserId(userId));
-//    }
-
     @GetMapping
     public ResponseEntity<?> getReservations(
             @RequestParam(required = false) ReservationType reservationType,
