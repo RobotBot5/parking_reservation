@@ -1,9 +1,11 @@
 package ru.robotbot.parking_reservation.repositories;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.robotbot.parking_reservation.domain.entities.ParkingSpotEntity;
 import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
 import ru.robotbot.parking_reservation.domain.entities.UserEntity;
@@ -37,5 +39,20 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     List<ParkingSpotEntity> findOccupiedParkingSpots();
 
     List<ReservationEntity> findAllByParkingSpotEntity(ParkingSpotEntity parkingSpotEntity);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ReservationEntity r SET r.reservationType = :newType WHERE r.startTime < :currentTime AND r.isPaid = false")
+    void updateExpiredReservations(LocalDateTime currentTime, ReservationType newType);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ReservationEntity r SET r.isPaid = true WHERE r.userEntity = :userEntity")
+    void updatePayReservations(UserEntity userEntity);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ReservationEntity r SET r.reservationType = :reservationType WHERE r.userEntity = :userEntity")
+    void updateTypeReservations(ReservationType reservationType, UserEntity userEntity);
 
 }

@@ -42,7 +42,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/camera/**").hasRole("CAMERA")
                         .requestMatchers("/reservations/**").hasRole("USER")
+                        .requestMatchers("/fines/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
         return http.build();

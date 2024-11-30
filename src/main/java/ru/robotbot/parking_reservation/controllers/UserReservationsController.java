@@ -89,6 +89,31 @@ public class UserReservationsController {
         else return ResponseEntity.ok(reservationEntity);
     }
 
+    @PutMapping("/pay")
+    public ResponseEntity<?> payReservation(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        int reservationAccept = reservationService.payReservation(userPrincipal);
+
+        Map<String, Object> response = new HashMap<>();
+        switch (reservationAccept) {
+            case 0:
+                response.put("status", "success");
+                response.put("message", "Reservation is payed");
+                return ResponseEntity.ok(response);
+            case 1:
+                response.put("status", "error");
+                response.put("message", "User doesn't have active reservation");
+                return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "Reservation is already payed");
+                return ResponseEntity.badRequest().body(response);
+            default:
+                response.put("status", "error");
+                response.put("message", "Unknown error occurred");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @DeleteMapping
     public ResponseEntity<Map<String, Object>> cancelReservation(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         int reservationAccept = reservationService.cancelReservation(userPrincipal);
