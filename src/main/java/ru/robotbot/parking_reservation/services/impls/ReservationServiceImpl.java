@@ -43,12 +43,12 @@ public class ReservationServiceImpl implements ReservationService {
         if (startTime.isAfter(endTime)) {
             return 3; // Start time is after before time
         }
-        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
-            return 4; // Reservation's time must be at least 30 minutes
-        }
-        if (startTime.isBefore(LocalDateTime.now())) {
-            return 6; // Start time has passed
-        }
+//        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
+//            return 4; // Reservation's time must be at least 30 minutes
+//        }
+//        if (startTime.isBefore(LocalDateTime.now())) {
+//            return 6; // Start time has passed
+//        }
         if (reservationRepository.findByUserEntityAndReservationType(
                 userEntity,
                 ReservationType.ACTIVE
@@ -124,6 +124,29 @@ public class ReservationServiceImpl implements ReservationService {
             return 2; // Reservation can be canceled only at 30 minutes
         }
         reservationRepository.delete(reservationEntity);
+        return 0; // okay
+    }
+
+    @Override
+    public void setExpiredReservations() {
+        reservationRepository.updateExpiredReservations(LocalDateTime.now(), ReservationType.EXPIRED);
+    }
+
+    @Override
+    public int payReservation(UserPrincipal userPrincipal) {
+        UserEntity userEntity = userRepository
+                .findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<ReservationEntity> reservationFromBd =
+                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+        if (reservationFromBd.isEmpty()) {
+            return 1; // User doesn't have active reservation
+        }
+        ReservationEntity reservationEntity = reservationFromBd.get();
+        if (reservationEntity.getIsPaid()) {
+            return 2; // Reservation is already payed
+        }
+        reservationRepository.updatePayReservations(userEntity);
         return 0; // okay
     }
 }

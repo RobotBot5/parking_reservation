@@ -23,4 +23,8 @@ public interface ReservationService {
     Optional<ReservationEntity> findById(Long id);
 
     int cancelReservation(UserPrincipal userPrincipal);
+
+    void setExpiredReservations();
+
+    int payReservation(UserPrincipal userPrincipal);
 }
