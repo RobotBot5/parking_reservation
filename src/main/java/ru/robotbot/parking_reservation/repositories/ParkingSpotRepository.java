@@ -17,4 +17,6 @@ public interface ParkingSpotRepository extends CrudRepository<ParkingSpotEntity,
     @Query("SELECT p FROM ParkingSpotEntity p WHERE p NOT IN :occupiedSpots")
     List<ParkingSpotEntity> findAvailableSpots(@Param("occupiedSpots") List<ParkingSpotEntity> occupiedSpots);
 
+    boolean existsByZoneAndNumber(ParkingSpotZone zone, Integer number);
+
 }

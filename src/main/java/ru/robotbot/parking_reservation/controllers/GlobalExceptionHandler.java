@@ -52,6 +52,12 @@ public class GlobalExceptionHandler {
                     "Invalid reservation type: " + ex.getValue() +
                             ". Use one of this: ACTIVE, EXPIRED, CANCELED"
             );
+        } else if (endpoint.endsWith("/add-parking-zone")) {
+            errorResponse.put(
+                    "error",
+                    "Invalid parking zone: " + ex.getValue() +
+                            ". Use one of this: A, B, C, D"
+            );
         }
         return errorResponse;
     }

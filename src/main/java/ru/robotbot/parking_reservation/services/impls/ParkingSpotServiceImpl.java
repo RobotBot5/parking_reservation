@@ -2,12 +2,12 @@ package ru.robotbot.parking_reservation.services.impls;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.robotbot.parking_reservation.domain.dto.ParkingSpotFullReservationResponse;
-import ru.robotbot.parking_reservation.domain.dto.ParkingSpotFullResponse;
+import ru.robotbot.parking_reservation.domain.dto.*;
 import ru.robotbot.parking_reservation.domain.entities.ParkingSpotEntity;
 import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
 import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
 import ru.robotbot.parking_reservation.domain.enums.ReservationType;
+import ru.robotbot.parking_reservation.mappers.Mapper;
 import ru.robotbot.parking_reservation.repositories.ParkingSpotRepository;
 import ru.robotbot.parking_reservation.repositories.ReservationRepository;
 import ru.robotbot.parking_reservation.services.ParkingSpotService;
@@ -23,6 +23,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
 
     private final ParkingSpotRepository parkingSpotRepository;
     private final ReservationRepository reservationRepository;
+    private final Mapper<ParkingSpotEntity, ParkingSpotDto> mapper;
 
     @Override
     public List<ParkingSpotEntity> getAllParkingSpots() {
@@ -39,8 +40,12 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
     }
 
     @Override
-    public void deleteParkingSpot(ParkingSpotEntity parkingSpotEntity) {
-        parkingSpotRepository.delete(parkingSpotEntity);
+    public int deleteParkingSpotById(Long parkingSpotId) {
+        if (!parkingSpotRepository.existsById(parkingSpotId)) {
+            return 1;
+        }
+        parkingSpotRepository.deleteById(parkingSpotId);
+        return 0;
     }
 
     @Override
@@ -77,5 +82,26 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
                 .zone(parkingSpotEntity.getZone())
                 .occupied(isOccupied)
                 .reservations(reservationList).build());
+    }
+
+    @Override
+    public int createParkingSpot(ParkingSpotCreateRequest parkingSpotCreateRequest) {
+        if (parkingSpotRepository.existsByZoneAndNumber(parkingSpotCreateRequest.getZone(), parkingSpotCreateRequest.getNumber()))
+            return 1; // Exists
+        ParkingSpotEntity parkingSpotEntity = ParkingSpotEntity.builder()
+                .number(parkingSpotCreateRequest.getNumber())
+                .zone(parkingSpotCreateRequest.getZone())
+                .build();
+        parkingSpotRepository.save(parkingSpotEntity);
+        return 0;
+    }
+
+    @Override
+    public int updateParkingSpot(ParkingSpotDto parkingSpotDto) {
+        if (!parkingSpotRepository.existsById(parkingSpotDto.getId()))
+            return 1; // Not exists
+        ParkingSpotEntity parkingSpotEntity = mapper.mapFrom(parkingSpotDto);
+        parkingSpotRepository.save(parkingSpotEntity);
+        return 0;
     }
 }
