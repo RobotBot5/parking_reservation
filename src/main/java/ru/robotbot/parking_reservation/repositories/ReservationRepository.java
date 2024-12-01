@@ -43,7 +43,7 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     @Modifying
     @Transactional
     @Query("UPDATE ReservationEntity r SET r.reservationType = :newType WHERE r.startTime < :currentTime AND r.isPaid = false")
-    void updateExpiredReservations(LocalDateTime currentTime, ReservationType newType);
+    void updateCanceledReservations(LocalDateTime currentTime, ReservationType newType);
 
     @Modifying
     @Transactional
@@ -62,4 +62,10 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     @Query("UPDATE ReservationEntity r SET r.parkingSpotEntity = null WHERE r.parkingSpotEntity = :parkingSpotEntity")
     void updateParkingSpotEntitiesBeforeDelete(ParkingSpotEntity parkingSpotEntity);
 
+    List<ReservationEntity> findAllByReservationTypeAndEndTimeBefore(ReservationType type, LocalDateTime expiredTime);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ReservationEntity r SET r.isExtendedMustPay = false WHERE r.userEntity = :userEntity")
+    void updateExtendedPay(UserEntity userEntity);
 }

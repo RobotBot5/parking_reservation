@@ -82,6 +82,10 @@ public class CameraController {
                 response.put("status", "error");
                 response.put("message", "User has to pay a fine");
                 return ResponseEntity.badRequest().body(response);
+            case 6:
+                response.put("status", "error");
+                response.put("message", "User must pay for extended time");
+                return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");
                 response.put("message", "Unknown error occurred");

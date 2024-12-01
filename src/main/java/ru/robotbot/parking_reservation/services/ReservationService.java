@@ -24,7 +24,11 @@ public interface ReservationService {
 
     int cancelReservation(UserPrincipal userPrincipal);
 
-    void setExpiredReservations();
+    void setCanceledReservations();
 
     int payReservation(UserPrincipal userPrincipal);
+
+    int extendTime(UserPrincipal userPrincipal, Integer minutes);
+
+    int payExtendedTime(UserPrincipal userPrincipal);
 }

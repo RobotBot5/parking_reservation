@@ -24,6 +24,8 @@ public class ReservationMapper implements Mapper<ReservationEntity, ReservationD
         ReservationEntity reservationEntity = modelMapper.map(reservationDto, ReservationEntity.class);
         reservationEntity.setId(null);
         reservationEntity.setIsPaid(false);
+        reservationEntity.setIsExtendedMustPay(false);
+        reservationEntity.setAmountToExtend(0);
         reservationEntity.setReservationType(ReservationType.ACTIVE);
         return reservationEntity;
     }

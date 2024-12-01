@@ -35,6 +35,12 @@ public class ReservationEntity {
 
     private Boolean isPaid;
 
+    private Double amountToPay;
+
+    private Boolean isExtendedMustPay;
+
+    private Double amountToExtend;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private ReservationType reservationType;

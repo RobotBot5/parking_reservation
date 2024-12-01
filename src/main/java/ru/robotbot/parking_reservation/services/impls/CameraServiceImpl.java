@@ -57,7 +57,7 @@ public class CameraServiceImpl implements CameraService {
             return 1; // Reservation doesn't exist
         ReservationEntity reservationEntity = reservationEntityFromDB.get();
         FineEntity fine = userEntity.getFine();
-        long minutesFromEnd = reservationEntity.getEndTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
+//        long minutesFromEnd = reservationEntity.getEndTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
         if (fine != null) {
             if (fine.getIsPaid()) {
                 userEntity.setFine(null);
@@ -82,18 +82,21 @@ public class CameraServiceImpl implements CameraService {
                 return 5; // Pay a fine!
             }
         }
-        if (minutesFromEnd > 15) {
-            double amountToPay = minutesFromEnd / 60.0 * 300;
-            FineEntity fineToSave = FineEntity.builder()
-                    .amount(amountToPay + FINE_AMOUNT)
-                    .timeToPay(LocalDateTime.now().plusMinutes(2))
-                    .isPaid(false)
-                    .build();
-            fineRepository.save(fineToSave);
-            userEntity.setFine(fineToSave);
-            userRepository.save(userEntity);
-            return 3; // New fine
+        else if (reservationEntity.getIsExtendedMustPay()) {
+            return 6;
         }
+//        if (minutesFromEnd > 15) {
+//            double amountToPay = minutesFromEnd / 60.0 * 300;
+//            FineEntity fineToSave = FineEntity.builder()
+//                    .amount(amountToPay + FINE_AMOUNT)
+//                    .timeToPay(LocalDateTime.now().plusMinutes(2))
+//                    .isPaid(false)
+//                    .build();
+//            fineRepository.save(fineToSave);
+//            userEntity.setFine(fineToSave);
+//            userRepository.save(userEntity);
+//            return 3; // New fine
+//        }
         reservationRepository.updateTypeReservations(ReservationType.EXPIRED, userEntity);
         return 0;
     }

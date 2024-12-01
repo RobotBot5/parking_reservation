@@ -15,7 +15,6 @@ import ru.robotbot.parking_reservation.repositories.UserRepository;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.ReservationService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -64,6 +63,12 @@ public class ReservationServiceImpl implements ReservationService {
         ReservationEntity reservationEntity = mapper.mapFrom(reservationDto);
         reservationEntity.setParkingSpotEntity(parkingSpotEntity);
         reservationEntity.setUserEntity(userEntity);
+        long minutesOfReservation = reservationEntity.getStartTime().until(
+                reservationEntity.getEndTime(),
+                ChronoUnit.MINUTES
+        );
+        double amountToPay = minutesOfReservation / 60.0 * parkingSpotEntity.getZone().getRate();
+        reservationEntity.setAmountToExtend(amountToPay);
         if (reservationRepository.existsByParkingSpotAndOnThisTime(
                 reservationEntity.getParkingSpotEntity().getId(),
                 reservationEntity.getStartTime(),
@@ -123,13 +128,13 @@ public class ReservationServiceImpl implements ReservationService {
         if (LocalDateTime.now().until(reservationEntity.getStartTime(), ChronoUnit.MINUTES) <= 30) {
             return 2; // Reservation can be canceled only at 30 minutes
         }
-        reservationRepository.delete(reservationEntity);
+        reservationRepository.updateTypeReservations(ReservationType.CANCELED, userEntity);
         return 0; // okay
     }
 
     @Override
-    public void setExpiredReservations() {
-        reservationRepository.updateExpiredReservations(LocalDateTime.now(), ReservationType.EXPIRED);
+    public void setCanceledReservations() {
+        reservationRepository.updateCanceledReservations(LocalDateTime.now(), ReservationType.CANCELED);
     }
 
     @Override
@@ -144,9 +149,62 @@ public class ReservationServiceImpl implements ReservationService {
         }
         ReservationEntity reservationEntity = reservationFromBd.get();
         if (reservationEntity.getIsPaid()) {
-            return 2; // Reservation is already payed
+            return 2; // Reservation is already paid
         }
         reservationRepository.updatePayReservations(userEntity);
+        return 0; // okay
+    }
+
+    @Override
+    public int extendTime(UserPrincipal userPrincipal, Integer minutes) {
+        UserEntity userEntity = userRepository
+                .findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<ReservationEntity> reservationFromBd =
+                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+        if (userEntity.getFine() != null) {
+            return 4;
+        }
+        if (reservationFromBd.isEmpty()) {
+            return 1; // User doesn't have active reservation
+        }
+        ReservationEntity reservationEntity = reservationFromBd.get();
+        if (reservationEntity.getIsExtendedMustPay()) {
+            return 3;
+        }
+        LocalDateTime newEndTime = reservationEntity.getEndTime().plusMinutes(minutes);
+        if (reservationRepository.existsByParkingSpotAndOnThisTime(
+                reservationEntity.getParkingSpotEntity().getId(),
+                reservationEntity.getEndTime().plusMinutes(1),
+                newEndTime
+        )) return 2; // exist reservation on this time
+        reservationEntity.setEndTime(newEndTime);
+        reservationEntity.setIsExtendedMustPay(true);
+        long minutesFromEnd = reservationEntity.getEndTime().until(
+                LocalDateTime.now(),
+                ChronoUnit.MINUTES
+        );
+        double amountToPay = minutesFromEnd / 60.0 * reservationEntity.getParkingSpotEntity().getZone().getRate();
+        reservationEntity.setAmountToExtend(amountToPay);
+        reservationRepository.save(reservationEntity);
+        return 0;
+    }
+
+    @Override
+    public int payExtendedTime(UserPrincipal userPrincipal) {
+        UserEntity userEntity = userRepository
+                .findById(userPrincipal.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<ReservationEntity> reservationFromBd =
+                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+        if (reservationFromBd.isEmpty()) {
+            return 1; // User doesn't have active reservation
+        }
+        ReservationEntity reservationEntity = reservationFromBd.get();
+        if (!reservationEntity.getIsExtendedMustPay()) {
+            return 2; // User doesn't need to pay for extend
+        }
+        reservationRepository.updateExtendedPay(userEntity);
         return 0; // okay
     }
 }

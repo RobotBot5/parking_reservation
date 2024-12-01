@@ -89,6 +89,42 @@ public class UserReservationsController {
         else return ResponseEntity.ok(reservationEntity);
     }
 
+    @PutMapping
+    public ResponseEntity<?> extendReservation(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam Integer minutes
+    ) {
+        int extendAccept = reservationService.extendTime(userPrincipal, minutes);
+
+        Map<String, Object> response = new HashMap<>();
+        switch (extendAccept) {
+            case 0:
+                response.put("status", "success");
+                response.put("message", "Reservation's time is extended");
+                return ResponseEntity.ok(response);
+            case 1:
+                response.put("status", "error");
+                response.put("message", "User doesn't have active reservation");
+                return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "Exists reservation on this time");
+                return ResponseEntity.badRequest().body(response);
+            case 3:
+                response.put("status", "error");
+                response.put("message", "User must pay for previous extend");
+                return ResponseEntity.badRequest().body(response);
+            case 4:
+                response.put("status", "error");
+                response.put("message", "User can't extend reservation time with fine");
+                return ResponseEntity.badRequest().body(response);
+            default:
+                response.put("status", "error");
+                response.put("message", "Unknown error occurred");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @PutMapping("/pay")
     public ResponseEntity<?> payReservation(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         int reservationAccept = reservationService.payReservation(userPrincipal);
@@ -97,7 +133,7 @@ public class UserReservationsController {
         switch (reservationAccept) {
             case 0:
                 response.put("status", "success");
-                response.put("message", "Reservation is payed");
+                response.put("message", "Reservation is paid");
                 return ResponseEntity.ok(response);
             case 1:
                 response.put("status", "error");
@@ -106,6 +142,31 @@ public class UserReservationsController {
             case 2:
                 response.put("status", "error");
                 response.put("message", "Reservation is already payed");
+                return ResponseEntity.badRequest().body(response);
+            default:
+                response.put("status", "error");
+                response.put("message", "Unknown error occurred");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/pay-extend")
+    public ResponseEntity<?> payExtendedTime(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        int reservationAccept = reservationService.payExtendedTime(userPrincipal);
+
+        Map<String, Object> response = new HashMap<>();
+        switch (reservationAccept) {
+            case 0:
+                response.put("status", "success");
+                response.put("message", "Extended time is paid");
+                return ResponseEntity.ok(response);
+            case 1:
+                response.put("status", "error");
+                response.put("message", "User doesn't have active reservation");
+                return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "User doesn't have to pay for extend");
                 return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");
