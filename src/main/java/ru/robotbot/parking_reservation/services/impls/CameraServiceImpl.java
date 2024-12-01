@@ -60,21 +60,25 @@ public class CameraServiceImpl implements CameraService {
         long minutesFromEnd = reservationEntity.getEndTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
         if (fine != null) {
             if (fine.getIsPaid()) {
+                userEntity.setFine(null);
+                userRepository.save(userEntity);
                 fineRepository.delete(fine);
                 reservationRepository.updateTypeReservations(ReservationType.EXPIRED, userEntity);
-                return 0;
-            } else if (!fine.getTimeToPay().isAfter(LocalDateTime.now())) {
-                double amountToPay = minutesFromEnd / 60.0 * 300;
-                FineEntity fineToUpdate = FineEntity.builder()
-                        .id(fine.getId())
-                        .amount(amountToPay + FINE_AMOUNT)
-                        .user(fine.getUser())
-                        .timeToPay(LocalDateTime.now().plusMinutes(15))
-                        .isPaid(false)
-                        .build();
-                fineRepository.save(fineToUpdate);
-                return 2; // Update fine
-            } else {
+                return 0; }
+//            } else if (!fine.getTimeToPay().isAfter(LocalDateTime.now())) {
+//                double amountToPay = minutesFromEnd / 60.0 * 300;
+//                FineEntity fineToUpdate = FineEntity.builder()
+//                        .id(fine.getId())
+//                        .amount(amountToPay + FINE_AMOUNT)
+//                        .timeToPay(LocalDateTime.now().plusMinutes(2))
+//                        .isPaid(false)
+//                        .build();
+//                fineRepository.save(fineToUpdate);
+//                userEntity.setFine(fineToUpdate);
+//                userRepository.save(userEntity);
+//                return 2; // Update fine
+//            }
+        else {
                 return 5; // Pay a fine!
             }
         }
@@ -82,11 +86,12 @@ public class CameraServiceImpl implements CameraService {
             double amountToPay = minutesFromEnd / 60.0 * 300;
             FineEntity fineToSave = FineEntity.builder()
                     .amount(amountToPay + FINE_AMOUNT)
-                    .user(userEntity)
-                    .timeToPay(LocalDateTime.now().plusMinutes(15))
+                    .timeToPay(LocalDateTime.now().plusMinutes(2))
                     .isPaid(false)
                     .build();
             fineRepository.save(fineToSave);
+            userEntity.setFine(fineToSave);
+            userRepository.save(userEntity);
             return 3; // New fine
         }
         reservationRepository.updateTypeReservations(ReservationType.EXPIRED, userEntity);

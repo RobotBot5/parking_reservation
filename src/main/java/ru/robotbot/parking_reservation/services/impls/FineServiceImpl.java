@@ -20,11 +20,11 @@ public class FineServiceImpl implements FineService {
     private final UserRepository userRepository;
 
     @Override
-    public Optional<FineEntity> getFineByUser(UserPrincipal userPrincipal) {
+    public FineEntity getFineByUser(UserPrincipal userPrincipal) {
         UserEntity userEntity = userRepository
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return fineRepository.findByUser(userEntity);
+        return userEntity.getFine();
     }
 
     @Override
@@ -32,15 +32,14 @@ public class FineServiceImpl implements FineService {
         UserEntity userEntity = userRepository
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Optional<FineEntity> fineByUserFromDB = fineRepository.findByUser(userEntity);
-        if (fineByUserFromDB.isEmpty()) {
+        FineEntity fineEntity = userEntity.getFine();
+        if (fineEntity == null) {
             return 1; // User has no fine
         }
-        FineEntity fineEntity = fineByUserFromDB.get();
         if (fineEntity.getIsPaid()) {
             return 2; // Fine is already paid
         }
-        fineRepository.updateIsPaid(userEntity);
+        fineRepository.updateIsPaid(fineEntity.getId());
         return 0;
     }
 }

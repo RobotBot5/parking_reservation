@@ -44,6 +44,11 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         if (!parkingSpotRepository.existsById(parkingSpotId)) {
             return 1;
         }
+        ParkingSpotEntity parkingSpotEntity = parkingSpotRepository.findById(parkingSpotId).get();
+        if (reservationRepository.existsByParkingSpotEntityAndReservationType(parkingSpotEntity, ReservationType.ACTIVE)) {
+            return 2; // exists reservations
+        }
+        reservationRepository.updateParkingSpotEntitiesBeforeDelete(parkingSpotEntity);
         parkingSpotRepository.deleteById(parkingSpotId);
         return 0;
     }
@@ -100,6 +105,8 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
     public int updateParkingSpot(ParkingSpotDto parkingSpotDto) {
         if (!parkingSpotRepository.existsById(parkingSpotDto.getId()))
             return 1; // Not exists
+        if (parkingSpotRepository.existsByZoneAndNumber(parkingSpotDto.getZone(), parkingSpotDto.getNumber()))
+            return 2; // Exists
         ParkingSpotEntity parkingSpotEntity = mapper.mapFrom(parkingSpotDto);
         parkingSpotRepository.save(parkingSpotEntity);
         return 0;

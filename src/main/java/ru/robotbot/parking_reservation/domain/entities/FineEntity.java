@@ -26,7 +26,4 @@ public class FineEntity {
 
     private Boolean isPaid;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
 }

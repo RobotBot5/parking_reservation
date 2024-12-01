@@ -25,11 +25,10 @@ public class UserFineController {
 
     @GetMapping
     public ResponseEntity<FineEntity> getCurrentFine(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Optional<FineEntity> fineByUser = fineService.getFineByUser(userPrincipal);
-        if (fineByUser.isEmpty()) {
+        FineEntity fineEntity = fineService.getFineByUser(userPrincipal);
+        if (fineEntity == null) {
             return ResponseEntity.notFound().build();
         }
-        FineEntity fineEntity = fineByUser.get();
         return ResponseEntity.ok(fineEntity);
     }
 

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface FineService {
 
-    Optional<FineEntity> getFineByUser(UserPrincipal userPrincipal);
+    FineEntity getFineByUser(UserPrincipal userPrincipal);
 
     int payForFine(UserPrincipal userPrincipal);
 

@@ -55,4 +55,11 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     @Query("UPDATE ReservationEntity r SET r.reservationType = :reservationType WHERE r.userEntity = :userEntity")
     void updateTypeReservations(ReservationType reservationType, UserEntity userEntity);
 
+    boolean existsByParkingSpotEntityAndReservationType(ParkingSpotEntity parkingSpotEntity, ReservationType reservationType);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ReservationEntity r SET r.parkingSpotEntity = null WHERE r.parkingSpotEntity = :parkingSpotEntity")
+    void updateParkingSpotEntitiesBeforeDelete(ParkingSpotEntity parkingSpotEntity);
+
 }

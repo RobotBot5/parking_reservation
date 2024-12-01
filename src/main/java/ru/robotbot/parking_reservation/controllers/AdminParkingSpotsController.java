@@ -82,6 +82,10 @@ public class AdminParkingSpotsController {
                 response.put("status", "error");
                 response.put("message", "Parking spot with this id doesnt exist");
                 return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "Parking spot with this zone and number already exists");
+                return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");
                 response.put("message", "Unknown error occurred");
@@ -103,6 +107,10 @@ public class AdminParkingSpotsController {
             case 1:
                 response.put("status", "error");
                 response.put("message", "Parking spot with this id doesnt exist");
+                return ResponseEntity.badRequest().body(response);
+            case 2:
+                response.put("status", "error");
+                response.put("message", "Exists active reservation on this parking spot");
                 return ResponseEntity.badRequest().body(response);
             default:
                 response.put("status", "error");

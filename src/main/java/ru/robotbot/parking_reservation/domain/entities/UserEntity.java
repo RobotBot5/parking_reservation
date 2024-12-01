@@ -40,7 +40,8 @@ public class UserEntity {
     private String email;
 
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne
+    @JoinColumn(name = "fine_id", nullable = true)
     private FineEntity fine;
 
 }

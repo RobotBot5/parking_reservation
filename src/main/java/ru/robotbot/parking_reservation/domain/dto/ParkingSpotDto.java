@@ -9,7 +9,6 @@ import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
 @Getter
 public class ParkingSpotDto {
 
-    @NotBlank(message = "Parking spot id cannot be blank")
     private Long id;
 
     private Integer number;

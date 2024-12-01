@@ -9,16 +9,19 @@ import ru.robotbot.parking_reservation.domain.entities.FineEntity;
 import ru.robotbot.parking_reservation.domain.entities.UserEntity;
 import ru.robotbot.parking_reservation.domain.enums.ReservationType;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface FineRepository extends CrudRepository<FineEntity, Long> {
 
-    Optional<FineEntity> findByUser(UserEntity userEntity);
-
     @Modifying
     @Transactional
-    @Query("UPDATE FineEntity f SET f.isPaid = true WHERE f.user = :userEntity")
-    void updateIsPaid(UserEntity userEntity);
+    @Query("UPDATE FineEntity f SET f.isPaid = true WHERE f.id = :id")
+    void updateIsPaid(Long id);
+
+
+    List<FineEntity> findByIsPaidFalseAndTimeToPayBefore(LocalDateTime currentTime);
 
 }
