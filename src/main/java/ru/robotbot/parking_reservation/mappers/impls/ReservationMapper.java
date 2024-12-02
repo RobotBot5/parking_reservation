@@ -15,17 +15,17 @@ public class ReservationMapper implements Mapper<ReservationEntity, ReservationD
     private final ModelMapper modelMapper;
 
     @Override
-    public ReservationDto mapTo(ReservationEntity reservationEntity) {
+    public ReservationDto mapDtoToEntity(ReservationEntity reservationEntity) {
         return modelMapper.map(reservationEntity, ReservationDto.class);
     }
 
     @Override
-    public ReservationEntity mapFrom(ReservationDto reservationDto) {
+    public ReservationEntity mapEntityToDto(ReservationDto reservationDto) {
         ReservationEntity reservationEntity = modelMapper.map(reservationDto, ReservationEntity.class);
         reservationEntity.setId(null);
         reservationEntity.setIsPaid(false);
         reservationEntity.setIsExtendedMustPay(false);
-        reservationEntity.setAmountToExtend(0);
+        reservationEntity.setAmountToExtend(0.0);
         reservationEntity.setReservationType(ReservationType.ACTIVE);
         return reservationEntity;
     }

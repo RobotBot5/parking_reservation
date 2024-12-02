@@ -107,7 +107,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
             return 1; // Not exists
         if (parkingSpotRepository.existsByZoneAndNumber(parkingSpotDto.getZone(), parkingSpotDto.getNumber()))
             return 2; // Exists
-        ParkingSpotEntity parkingSpotEntity = mapper.mapFrom(parkingSpotDto);
+        ParkingSpotEntity parkingSpotEntity = mapper.mapEntityToDto(parkingSpotDto);
         parkingSpotRepository.save(parkingSpotEntity);
         return 0;
     }

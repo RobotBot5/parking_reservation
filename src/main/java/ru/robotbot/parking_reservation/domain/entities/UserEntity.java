@@ -39,7 +39,6 @@ public class UserEntity {
     @Column(unique = true)
     private String email;
 
-
     @OneToOne
     @JoinColumn(name = "fine_id", nullable = true)
     private FineEntity fine;

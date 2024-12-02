@@ -1,6 +1,7 @@
 package ru.robotbot.parking_reservation.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
@@ -44,6 +45,27 @@ public class AdminReservationsController {
         return reservationService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReservationById(@PathVariable Long id) {
+        int deleteAccept = reservationService.deleteById(id);
+
+        Map<String, Object> response = new HashMap<>();
+        switch (deleteAccept) {
+            case 0:
+                response.put("status", "success");
+                response.put("message", "Reservation is deleted");
+                return ResponseEntity.ok(response);
+            case 1:
+                response.put("status", "error");
+                response.put("message", "Reservation with this id doesn't exist");
+                return ResponseEntity.badRequest().body(response);
+            default:
+                response.put("status", "error");
+                response.put("message", "Unknown error occurred");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 

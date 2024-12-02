@@ -2,8 +2,8 @@ package ru.robotbot.parking_reservation.mappers;
 
 public interface Mapper<A, B> {
 
-    B mapTo(A a);
+    B mapDtoToEntity(A a);
 
-    A mapFrom(B b);
+    A mapEntityToDto(B b);
 
 }

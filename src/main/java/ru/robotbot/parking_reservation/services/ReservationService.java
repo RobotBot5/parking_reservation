@@ -31,4 +31,6 @@ public interface ReservationService {
     int extendTime(UserPrincipal userPrincipal, Integer minutes);
 
     int payExtendedTime(UserPrincipal userPrincipal);
+
+    int deleteById(Long id);
 }

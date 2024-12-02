@@ -60,7 +60,7 @@ public class ReservationServiceImpl implements ReservationService {
         if (parkingSpotEntity == null) {
             return 1; // parkingSpot with this id doesn't exist
         }
-        ReservationEntity reservationEntity = mapper.mapFrom(reservationDto);
+        ReservationEntity reservationEntity = mapper.mapEntityToDto(reservationDto);
         reservationEntity.setParkingSpotEntity(parkingSpotEntity);
         reservationEntity.setUserEntity(userEntity);
         long minutesOfReservation = reservationEntity.getStartTime().until(
@@ -206,5 +206,14 @@ public class ReservationServiceImpl implements ReservationService {
         }
         reservationRepository.updateExtendedPay(userEntity);
         return 0; // okay
+    }
+
+    @Override
+    public int deleteById(Long id) {
+        if (!reservationRepository.existsById(id)) {
+            return 1;
+        }
+        reservationRepository.deleteById(id);
+        return 0;
     }
 }

@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/camera/**").hasRole("CAMERA")
                         .requestMatchers("/reservations/**").hasRole("USER")
                         .requestMatchers("/fines/**").hasRole("USER")
+                        .requestMatchers("/user/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
         return http.build();

@@ -15,12 +15,12 @@ public class ParkingSpotMapper implements Mapper<ParkingSpotEntity, ParkingSpotD
     private final ModelMapper mapper;
 
     @Override
-    public ParkingSpotDto mapTo(ParkingSpotEntity parkingSpotEntity) {
+    public ParkingSpotDto mapDtoToEntity(ParkingSpotEntity parkingSpotEntity) {
         return mapper.map(parkingSpotEntity, ParkingSpotDto.class);
     }
 
     @Override
-    public ParkingSpotEntity mapFrom(ParkingSpotDto parkingSpotDto) {
+    public ParkingSpotEntity mapEntityToDto(ParkingSpotDto parkingSpotDto) {
         return mapper.map(parkingSpotDto, ParkingSpotEntity.class);
     }
 }
