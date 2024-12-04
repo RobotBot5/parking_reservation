@@ -5,16 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ru.robotbot.parking_reservation.domain.dto.UserDto;
 import ru.robotbot.parking_reservation.domain.dto.UserInfoResponse;
-import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
-import ru.robotbot.parking_reservation.domain.entities.UserEntity;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")

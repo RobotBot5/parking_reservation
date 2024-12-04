@@ -42,12 +42,12 @@ public class ReservationServiceImpl implements ReservationService {
         if (startTime.isAfter(endTime)) {
             return 3; // Start time is after before time
         }
-//        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
-//            return 4; // Reservation's time must be at least 30 minutes
-//        }
-//        if (startTime.isBefore(LocalDateTime.now())) {
-//            return 6; // Start time has passed
-//        }
+        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
+            return 4; // Reservation's time must be at least 30 minutes
+        }
+        if (startTime.isBefore(LocalDateTime.now())) {
+            return 6; // Start time has passed
+        }
         if (reservationRepository.findByUserEntityAndReservationType(
                 userEntity,
                 ReservationType.ACTIVE
@@ -84,7 +84,10 @@ public class ReservationServiceImpl implements ReservationService {
                         userPrincipal
                                 .getUserId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return reservationRepository.findFirstByUserEntityAndReservationType(user, ReservationType.ACTIVE);
+        return reservationRepository.findFirstByUserEntityAndReservationType(
+                user,
+                ReservationType.ACTIVE
+        );
     }
 
     @Override
@@ -120,7 +123,9 @@ public class ReservationServiceImpl implements ReservationService {
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Optional<ReservationEntity> reservationFromBd =
-                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+                reservationRepository.findByUserEntityAndReservationType(
+                        userEntity, ReservationType.ACTIVE
+                );
         if (reservationFromBd.isEmpty()) {
             return 1; // User doesn't have active reservation
         }
@@ -134,7 +139,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void setCanceledReservations() {
-        reservationRepository.updateCanceledReservations(LocalDateTime.now(), ReservationType.CANCELED);
+        reservationRepository.updateCanceledReservations(LocalDateTime.now(),
+                ReservationType.CANCELED);
     }
 
     @Override
@@ -143,7 +149,8 @@ public class ReservationServiceImpl implements ReservationService {
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Optional<ReservationEntity> reservationFromBd =
-                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+                reservationRepository.findByUserEntityAndReservationType(userEntity,
+                        ReservationType.ACTIVE);
         if (reservationFromBd.isEmpty()) {
             return 1; // User doesn't have active reservation
         }
@@ -161,7 +168,8 @@ public class ReservationServiceImpl implements ReservationService {
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Optional<ReservationEntity> reservationFromBd =
-                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+                reservationRepository.findByUserEntityAndReservationType(userEntity,
+                        ReservationType.ACTIVE);
         if (userEntity.getFine() != null) {
             return 4;
         }
@@ -196,7 +204,8 @@ public class ReservationServiceImpl implements ReservationService {
                 .findById(userPrincipal.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Optional<ReservationEntity> reservationFromBd =
-                reservationRepository.findByUserEntityAndReservationType(userEntity, ReservationType.ACTIVE);
+                reservationRepository.findByUserEntityAndReservationType(userEntity,
+                        ReservationType.ACTIVE);
         if (reservationFromBd.isEmpty()) {
             return 1; // User doesn't have active reservation
         }

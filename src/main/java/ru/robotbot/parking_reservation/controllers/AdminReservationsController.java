@@ -28,7 +28,9 @@ public class AdminReservationsController {
 
         if (userId != null) {
             if (!userService.isUserExistsById(userId)) {
-                return ResponseEntity.badRequest().body(createErrorResponse("User with id " + userId + " doesn't exist"));
+                return ResponseEntity.badRequest().body(createErrorResponse(
+                        "User with id " + userId + " doesn't exist")
+                );
             }
             return ResponseEntity.ok(reservationService.getAllByUserId(userId));
         }

@@ -13,7 +13,6 @@ public class ReservationCleanupScheduler {
 
     private final ReservationService reservationService;
 
-    // Запускается каждый час
     @Scheduled(fixedRate = 60000)
     public void scheduleReservationCleanup() {
         log.info("scheduleReservationCleanup");

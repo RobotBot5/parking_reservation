@@ -19,7 +19,8 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        var user = userService.getUserByPhoneNumber(phoneNumber).orElseThrow(() -> new UsernameNotFoundException(phoneNumber));
+        var user = userService.getUserByPhoneNumber(phoneNumber).orElseThrow(() ->
+                new UsernameNotFoundException(phoneNumber));
         return UserPrincipal.builder()
                 .userId(user.getId())
                 .phoneNumber(user.getPhoneNumber())

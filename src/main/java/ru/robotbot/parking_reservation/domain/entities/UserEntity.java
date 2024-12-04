@@ -40,7 +40,7 @@ public class UserEntity {
     private String email;
 
     @OneToOne
-    @JoinColumn(name = "fine_id", nullable = true)
+    @JoinColumn(name = "fine_id")
     private FineEntity fine;
 
 }

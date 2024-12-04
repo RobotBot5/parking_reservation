@@ -22,21 +22,6 @@ public class UserReservationsController {
 
     private final ReservationService reservationService;
 
-//    @PostMapping
-//    public ResponseEntity<String> createReservation(
-//            @RequestBody @Validated ReservationDto reservationDto,
-//            @AuthenticationPrincipal UserPrincipal userPrincipal
-//    ) {
-//        int reservationAccept = reservationService.createReservation(reservationDto, userPrincipal);
-//        if (reservationAccept == 0) {
-//            return ResponseEntity.ok("Reservation accepted");
-//        } else if (reservationAccept == 1) { // parkingSpot with this id doesn't exist
-//            return ResponseEntity.badRequest().body("Parking spot with this id doesn't exist");
-//        } else { // exist reservation on this time
-//            return ResponseEntity.badRequest().body("This time of this parking spot is reserved");
-//        }
-//    }
-
     @PostMapping
     public ResponseEntity<Map<String, Object>> createReservation(
             @RequestBody @Validated ReservationDto reservationDto,

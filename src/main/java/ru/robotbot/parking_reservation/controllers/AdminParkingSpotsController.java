@@ -24,7 +24,9 @@ public class AdminParkingSpotsController {
     private final ParkingSpotService parkingSpotService;
 
     @GetMapping
-    public ResponseEntity<List<ParkingSpotEntity>> getParkingSpots(@RequestParam(required = false) ParkingSpotZone zone) {
+    public ResponseEntity<List<ParkingSpotEntity>> getParkingSpots(
+            @RequestParam(required = false) ParkingSpotZone zone
+    ) {
         if (zone == null) {
             return ResponseEntity.ok(parkingSpotService.getAllParkingSpots());
         }
@@ -32,7 +34,9 @@ public class AdminParkingSpotsController {
     }
 
     @GetMapping("/occupied")
-    public ResponseEntity<List<ParkingSpotEntity>> getOccupiedParkingSpots(@RequestParam(required = false) Boolean occupied) {
+    public ResponseEntity<List<ParkingSpotEntity>> getOccupiedParkingSpots(
+            @RequestParam(required = false) Boolean occupied
+    ) {
         if (occupied == null) {
             occupied = true;
         }
@@ -47,7 +51,9 @@ public class AdminParkingSpotsController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addParkingSpot(@RequestBody @Validated ParkingSpotCreateRequest parkingSpotCreateRequest) {
+    public ResponseEntity<?> addParkingSpot(
+            @RequestBody @Validated ParkingSpotCreateRequest parkingSpotCreateRequest
+    ) {
         int parkingSpotAccept = parkingSpotService.createParkingSpot(parkingSpotCreateRequest);
 
         Map<String, Object> response = new HashMap<>();

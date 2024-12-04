@@ -28,9 +28,9 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
     @Override
     public List<ParkingSpotEntity> getAllParkingSpots() {
         return StreamSupport.stream(parkingSpotRepository
-                .findAll()
-                .spliterator(),
-                false)
+                                .findAll()
+                                .spliterator(),
+                        false)
                 .collect(Collectors.toList());
     }
 
@@ -44,8 +44,11 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         if (!parkingSpotRepository.existsById(parkingSpotId)) {
             return 1;
         }
-        ParkingSpotEntity parkingSpotEntity = parkingSpotRepository.findById(parkingSpotId).get();
-        if (reservationRepository.existsByParkingSpotEntityAndReservationType(parkingSpotEntity, ReservationType.ACTIVE)) {
+        ParkingSpotEntity parkingSpotEntity = parkingSpotRepository.findById(parkingSpotId).orElseThrow();
+        if (reservationRepository.existsByParkingSpotEntityAndReservationType(
+                parkingSpotEntity,
+                ReservationType.ACTIVE
+        )) {
             return 2; // exists reservations
         }
         reservationRepository.updateParkingSpotEntitiesBeforeDelete(parkingSpotEntity);
@@ -73,14 +76,16 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         }
         ParkingSpotEntity parkingSpotEntity = parkingSpotEntityFromDb.get();
         List<ReservationEntity> reservations = reservationRepository.findAllByParkingSpotEntity(parkingSpotEntity);
-        List<ParkingSpotFullReservationResponse> reservationList = reservations.stream().map((reservationEntity -> ParkingSpotFullReservationResponse.builder()
-                .id(reservationEntity.getId())
-                .startTime(reservationEntity.getStartTime())
-                .endTime(reservationEntity.getEndTime())
-                .userEntity(reservationEntity.getUserEntity())
-                .isPaid(reservationEntity.getIsPaid())
-                .reservationType(reservationEntity.getReservationType()).build())).toList();
-        boolean isOccupied = reservationList.stream().anyMatch((reservation -> reservation.getReservationType() == ReservationType.ACTIVE));
+        List<ParkingSpotFullReservationResponse> reservationList = reservations.stream()
+                .map((reservationEntity -> ParkingSpotFullReservationResponse.builder()
+                        .id(reservationEntity.getId())
+                        .startTime(reservationEntity.getStartTime())
+                        .endTime(reservationEntity.getEndTime())
+                        .userEntity(reservationEntity.getUserEntity())
+                        .isPaid(reservationEntity.getIsPaid())
+                        .reservationType(reservationEntity.getReservationType()).build())).toList();
+        boolean isOccupied = reservationList.stream().anyMatch((reservation ->
+                reservation.getReservationType() == ReservationType.ACTIVE));
         return Optional.of(ParkingSpotFullResponse.builder()
                 .id(parkingSpotEntity.getId())
                 .number(parkingSpotEntity.getNumber())
@@ -91,7 +96,10 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
 
     @Override
     public int createParkingSpot(ParkingSpotCreateRequest parkingSpotCreateRequest) {
-        if (parkingSpotRepository.existsByZoneAndNumber(parkingSpotCreateRequest.getZone(), parkingSpotCreateRequest.getNumber()))
+        if (parkingSpotRepository.existsByZoneAndNumber(
+                parkingSpotCreateRequest.getZone(),
+                parkingSpotCreateRequest.getNumber()
+        ))
             return 1; // Exists
         ParkingSpotEntity parkingSpotEntity = ParkingSpotEntity.builder()
                 .number(parkingSpotCreateRequest.getNumber())

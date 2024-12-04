@@ -1,6 +1,5 @@
 package ru.robotbot.parking_reservation.domain.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
