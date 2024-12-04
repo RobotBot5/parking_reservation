@@ -5,43 +5,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.robotbot.parking_reservation.domain.dto.ParkingSpotCreateRequest;
 import ru.robotbot.parking_reservation.domain.dto.ParkingSpotDto;
 import ru.robotbot.parking_reservation.domain.dto.ParkingSpotFullResponse;
-import ru.robotbot.parking_reservation.domain.dto.ParkingSpotCreateRequest;
-import ru.robotbot.parking_reservation.domain.entities.ParkingSpotEntity;
-import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
 import ru.robotbot.parking_reservation.services.ParkingSpotService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/parking-spots")
+@RequestMapping("/parking-spots/admin")
 @RequiredArgsConstructor
 public class AdminParkingSpotsController {
 
     private final ParkingSpotService parkingSpotService;
-
-    @GetMapping
-    public ResponseEntity<List<ParkingSpotEntity>> getParkingSpots(
-            @RequestParam(required = false) ParkingSpotZone zone
-    ) {
-        if (zone == null) {
-            return ResponseEntity.ok(parkingSpotService.getAllParkingSpots());
-        }
-        return ResponseEntity.ok(parkingSpotService.getParkingSpotsByZone(zone));
-    }
-
-    @GetMapping("/occupied")
-    public ResponseEntity<List<ParkingSpotEntity>> getOccupiedParkingSpots(
-            @RequestParam(required = false) Boolean occupied
-    ) {
-        if (occupied == null) {
-            occupied = true;
-        }
-        return ResponseEntity.ok(parkingSpotService.getOccupiedParkingSpots(occupied));
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ParkingSpotFullResponse> getParkingSpotById(@PathVariable Long id) {

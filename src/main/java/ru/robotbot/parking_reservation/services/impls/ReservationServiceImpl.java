@@ -42,12 +42,12 @@ public class ReservationServiceImpl implements ReservationService {
         if (startTime.isAfter(endTime)) {
             return 3; // Start time is after before time
         }
-        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
-            return 4; // Reservation's time must be at least 30 minutes
-        }
-        if (startTime.isBefore(LocalDateTime.now())) {
-            return 6; // Start time has passed
-        }
+//        if (startTime.until(endTime, ChronoUnit.MINUTES) < 30) {
+//            return 4; // Reservation's time must be at least 30 minutes
+//        }
+//        if (startTime.isBefore(LocalDateTime.now())) {
+//            return 6; // Start time has passed
+//        }
         if (reservationRepository.findByUserEntityAndReservationType(
                 userEntity,
                 ReservationType.ACTIVE
@@ -68,7 +68,7 @@ public class ReservationServiceImpl implements ReservationService {
                 ChronoUnit.MINUTES
         );
         double amountToPay = minutesOfReservation / 60.0 * parkingSpotEntity.getZone().getRate();
-        reservationEntity.setAmountToExtend(amountToPay);
+        reservationEntity.setAmountToPay(amountToPay);
         if (reservationRepository.existsByParkingSpotAndOnThisTime(
                 reservationEntity.getParkingSpotEntity().getId(),
                 reservationEntity.getStartTime(),

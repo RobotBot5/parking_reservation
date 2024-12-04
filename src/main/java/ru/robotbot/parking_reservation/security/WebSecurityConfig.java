@@ -43,6 +43,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(registry -> registry
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/parking-spots/**").permitAll()
+                        .requestMatchers("/parking-spots/admin/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/camera/**").hasRole("CAMERA")
                         .requestMatchers("/reservations/**").hasRole("USER")
@@ -60,7 +62,9 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        var builder = http.getSharedObject(
+                AuthenticationManagerBuilder.class
+        );
         builder
                 .userDetailsService(customUserDetailService)
                 .passwordEncoder(passwordEncoder());

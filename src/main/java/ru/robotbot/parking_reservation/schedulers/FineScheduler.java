@@ -31,7 +31,9 @@ public class FineScheduler {
     @Scheduled(fixedRate = 60000)
     public void updateOverdueFines() {
         log.info("updateOverdueFines");
-        List<FineEntity> overdueFines = fineRepository.findByIsPaidFalseAndTimeToPayBefore(LocalDateTime.now());
+        List<FineEntity> overdueFines = fineRepository.findByIsPaidFalseAndTimeToPayBefore(
+                LocalDateTime.now()
+        );
 
         for (FineEntity fine : overdueFines) {
             fine.setAmount(fine.getAmount() + FINE_INCREMENT_AMOUNT);
