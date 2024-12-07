@@ -6,12 +6,11 @@ import org.springframework.stereotype.Component;
 import ru.robotbot.parking_reservation.domain.dto.UserDto;
 import ru.robotbot.parking_reservation.domain.dto.UserInfoResponse;
 import ru.robotbot.parking_reservation.domain.entities.UserEntity;
-import ru.robotbot.parking_reservation.mappers.Mapper;
-import ru.robotbot.parking_reservation.mappers.UserMapper;
+import ru.robotbot.parking_reservation.mappers.MapperWithResponse;
 
 @Component
 @RequiredArgsConstructor
-public class UserMapperImpl implements UserMapper<UserDto, UserEntity, UserInfoResponse> {
+public class UserMapperImpl implements MapperWithResponse<UserDto, UserEntity, UserInfoResponse> {
 
     private final ModelMapper modelMapper;
 

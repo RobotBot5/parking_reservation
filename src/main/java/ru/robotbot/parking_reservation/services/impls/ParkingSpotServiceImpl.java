@@ -1,17 +1,21 @@
 package ru.robotbot.parking_reservation.services.impls;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.robotbot.parking_reservation.domain.dto.*;
 import ru.robotbot.parking_reservation.domain.entities.ParkingSpotEntity;
 import ru.robotbot.parking_reservation.domain.entities.ReservationEntity;
 import ru.robotbot.parking_reservation.domain.enums.ParkingSpotZone;
 import ru.robotbot.parking_reservation.domain.enums.ReservationType;
 import ru.robotbot.parking_reservation.mappers.Mapper;
+import ru.robotbot.parking_reservation.mappers.MapperWithResponse;
 import ru.robotbot.parking_reservation.repositories.ParkingSpotRepository;
 import ru.robotbot.parking_reservation.repositories.ReservationRepository;
 import ru.robotbot.parking_reservation.services.ParkingSpotService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,7 +27,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
 
     private final ParkingSpotRepository parkingSpotRepository;
     private final ReservationRepository reservationRepository;
-    private final Mapper<ParkingSpotEntity, ParkingSpotDto> mapper;
+    private final MapperWithResponse<ParkingSpotDto, ParkingSpotEntity, ParkingSpotsResponse> mapper;
 
     @Override
     public List<ParkingSpotEntity> getAllParkingSpots() {
@@ -62,10 +66,20 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
     }
 
     @Override
-    public List<ParkingSpotEntity> getOccupiedParkingSpots(boolean occupied) {
-        List<ParkingSpotEntity> occupiedParkingSpots = reservationRepository.findOccupiedParkingSpots();
-        if (occupied) return occupiedParkingSpots;
-        return parkingSpotRepository.findAvailableSpots(occupiedParkingSpots);
+    public List<ParkingSpotsResponse> getOccupiedParkingSpots(
+            boolean occupied,
+            LocalDateTime start,
+            LocalDateTime end
+    ) {
+        if (start.isAfter(end)) {
+            return List.of();
+        }
+        List<ParkingSpotEntity> occupiedParkingSpots = reservationRepository.findOccupiedParkingSpots(start, end);
+        if (occupied) {
+            return occupiedParkingSpots.stream().map(mapper::mapEntityToResponse).toList();
+        }
+        return parkingSpotRepository.findAvailableSpots(occupiedParkingSpots)
+                .stream().map(mapper::mapEntityToResponse).toList();
     }
 
     @Override
@@ -115,7 +129,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
             return 1; // Not exists
         if (parkingSpotRepository.existsByZoneAndNumber(parkingSpotDto.getZone(), parkingSpotDto.getNumber()))
             return 2; // Exists
-        ParkingSpotEntity parkingSpotEntity = mapper.mapEntityToDto(parkingSpotDto);
+        ParkingSpotEntity parkingSpotEntity = mapper.mapDtoToEntity(parkingSpotDto);
         parkingSpotRepository.save(parkingSpotEntity);
         return 0;
     }

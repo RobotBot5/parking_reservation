@@ -35,8 +35,10 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     Optional<ReservationEntity> findByUserEntityAndReservationType(UserEntity userEntity, ReservationType reservationType);
 
     @Query("SELECT r.parkingSpotEntity FROM ReservationEntity r " +
-            "WHERE r.reservationType = 'ACTIVE'")
-    List<ParkingSpotEntity> findOccupiedParkingSpots();
+            "WHERE r.reservationType = 'ACTIVE'" +
+            "AND ((:startTime BETWEEN r.startTime AND r.endTime) " +
+            "OR (:endTime BETWEEN r.startTime AND r.endTime))")
+    List<ParkingSpotEntity> findOccupiedParkingSpots(LocalDateTime startTime, LocalDateTime endTime);
 
     List<ReservationEntity> findAllByParkingSpotEntity(ParkingSpotEntity parkingSpotEntity);
 

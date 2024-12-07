@@ -186,12 +186,12 @@ public class ReservationServiceImpl implements ReservationService {
                 reservationEntity.getEndTime().plusMinutes(1),
                 newEndTime
         )) return 2; // exist reservation on this time
-        reservationEntity.setEndTime(newEndTime);
-        reservationEntity.setIsExtendedMustPay(true);
         long minutesFromEnd = reservationEntity.getEndTime().until(
-                LocalDateTime.now(),
+                newEndTime,
                 ChronoUnit.MINUTES
         );
+        reservationEntity.setEndTime(newEndTime);
+        reservationEntity.setIsExtendedMustPay(true);
         double amountToPay = minutesFromEnd / 60.0 * reservationEntity.getParkingSpotEntity().getZone().getRate();
         reservationEntity.setAmountToExtend(amountToPay);
         reservationRepository.save(reservationEntity);

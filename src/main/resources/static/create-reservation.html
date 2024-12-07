@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Create Reservation</h1>
+    <form id="reservation-form" class="mt-4">
+        <div class="mb-3">
+            <label for="startTime" class="form-label">Start Time</label>
+            <input type="datetime-local" class="form-control" id="startTime" required>
+        </div>
+        <div class="mb-3">
+            <label for="endTime" class="form-label">End Time</label>
+            <input type="datetime-local" class="form-control" id="endTime" required>
+        </div>
+        <div class="mb-3">
+            <label for="parkingSpotId" class="form-label">Select Parking Spot</label>
+            <select class="form-control" id="parkingSpotId" disabled>
+                <option value="">Select time to load spots</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Reservation</button>
+    </form>
+</div>
+
+<script>
+    const token = localStorage.getItem('jwtToken'); // Получаем токен из локального хранилища
+
+    if (!token) {
+        // Перенаправление на страницу входа, если токен отсутствует
+        window.location.href = 'login.html';
+    }
+
+    const decodedToken = JSON.parse(atob(token.split('.')[1])); // Декодируем токен
+    if (!decodedToken.a.includes('ROLE_USER')) {
+        // Перенаправление на страницу входа, если роль не соответствует
+        window.location.href = 'login.html';
+    }
+
+    const form = document.getElementById('reservation-form');
+    const startTimeInput = document.getElementById('startTime');
+    const endTimeInput = document.getElementById('endTime');
+    const parkingSpotSelect = document.getElementById('parkingSpotId');
+    function loadAvailableSpots(startTime, endTime) {
+        const url = `http://localhost:8080/parking-spots/occupied?occupied=false&start=${encodeURIComponent(startTime)}&end=${encodeURIComponent(endTime)}`;
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch available parking spots');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Очистить старые опции
+                parkingSpotSelect.innerHTML = '';
+
+                if (data.length === 0) {
+                    parkingSpotSelect.innerHTML = '<option value="">No spots available</option>';
+                    parkingSpotSelect.disabled = true;
+                } else {
+                    parkingSpotSelect.disabled = false;
+                    data.forEach(spot => {
+                        const option = document.createElement('option');
+                        option.value = spot.id;
+                        option.textContent = `Spot #${spot.number} (${spot.zone}) - $${spot.price}/hour`;
+                        parkingSpotSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading parking spots:', error);
+                parkingSpotSelect.innerHTML = '<option value="">Error loading spots</option>';
+                parkingSpotSelect.disabled = true;
+            });
+    }
+    [startTimeInput, endTimeInput].forEach(input => {
+        input.addEventListener('change', () => {
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+
+            if (startTime && endTime) {
+                loadAvailableSpots(startTime, endTime);
+            }
+        });
+    });
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Предотвращаем перезагрузку страницы
+
+        const parkingSpotId = document.getElementById('parkingSpotId').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+
+        const reservationData = {
+            parkingSpotId: parseInt(parkingSpotId, 10),
+            startTime: startTime,
+            endTime: endTime
+        };
+
+        fetch('http://localhost:8080/reservations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(reservationData)
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Перенаправляем пользователя на страницу профиля при успехе
+                    alert(data.message);
+                    window.location.href = 'profile.html';
+                } else {
+                    // Выводим сообщение об ошибке
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error creating reservation:', error);
+                alert('An unexpected error occurred.');
+            });
+    });
+</script>
+</body>
+</html>

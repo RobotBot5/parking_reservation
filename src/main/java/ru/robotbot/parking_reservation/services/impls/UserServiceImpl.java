@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.robotbot.parking_reservation.domain.dto.UserDto;
 import ru.robotbot.parking_reservation.domain.dto.UserInfoResponse;
 import ru.robotbot.parking_reservation.domain.entities.UserEntity;
-import ru.robotbot.parking_reservation.mappers.UserMapper;
+import ru.robotbot.parking_reservation.mappers.MapperWithResponse;
 import ru.robotbot.parking_reservation.repositories.UserRepository;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.UserService;
@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final UserMapper<UserDto, UserEntity, UserInfoResponse> userMapper;
+    private final MapperWithResponse<UserDto, UserEntity, UserInfoResponse> userMapper;
 
     @Override
     public void addUser(UserDto userDto, PasswordEncoder passwordEncoder) {

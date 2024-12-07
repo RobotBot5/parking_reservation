@@ -1,6 +1,6 @@
 package ru.robotbot.parking_reservation.mappers;
 
-public interface UserMapper<D, E, R> {
+public interface MapperWithResponse<D, E, R> {
 
     E mapDtoToEntity(D d);
 

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>User Profile</h1>
+    <div id="profile-container" class="mt-4">
+        <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
+        <p><strong>First Name:</strong> <span id="firstName"></span></p>
+        <p><strong>Car States:</strong> <span id="carStates"></span></p>
+        <p><strong>Email:</strong> <span id="email"></span></p>
+    </div>
+
+    <div id="reservation-container" class="mt-5">
+        <h2>Current Reservation</h2>
+        <div id="reservation-info" class="alert alert-info" role="alert">
+            Loading reservation details...
+        </div>
+        <!-- Кнопка для создания бронирования, скрыта по умолчанию -->
+        <div id="create-reservation-container" class="mt-4" style="display: none;">
+            <button id="create-reservation-btn" class="btn btn-primary">Create a New Reservation</button>
+        </div>
+        <button id="payButton" class="btn btn-success mt-3" style="display: none;">Pay</button>
+        <button id="cancelButton" class="btn btn-danger mt-3" style="display: none;">Cancel Reservation</button>
+        <div id="extend-reservation-container" class="mt-3" style="display: none;">
+            <label for="extendTime" class="form-label">Extend by (minutes):</label>
+            <input id="extendTime" type="number" class="form-control" placeholder="Enter minutes">
+            <button id="extendButton" class="btn btn-warning mt-3">Extend Reservation</button>
+        </div>
+        <button id="payExtendButton" class="btn btn-success mt-3" style="display: none;">Pay for Extension</button>
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    if (!decodedToken.a.includes('ROLE_USER')) {
+        window.location.href = 'login.html';
+    }
+
+    fetch('http://localhost:8080/user', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = 'login.html';
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('phoneNumber').textContent = data.phoneNumber;
+            document.getElementById('firstName').textContent = data.firstName;
+            document.getElementById('carStates').textContent = data.carStates.join(', ');
+            document.getElementById('email').textContent = data.email;
+        })
+        .catch(error => {
+            console.error('Error fetching user info:', error);
+        });
+
+    function loadReservation() {
+        fetch('http://localhost:8080/reservations', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 404) {
+                    document.getElementById('reservation-info').textContent = 'No reservations found.';
+                    document.getElementById('create-reservation-container').style.display = 'block';
+                    return null;
+                }
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reservation details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                const reservationInfo = document.getElementById('reservation-info');
+                const cancelButton = document.getElementById('cancelButton');
+                const extendButton = document.getElementById('extendButton');
+                const extendContainer = document.getElementById('extend-reservation-container');
+                const payExtendButton = document.getElementById('payExtendButton');
+
+                reservationInfo.innerHTML = `
+                    <p><strong>Parking Spot:</strong> ${data.parkingSpotEntity.number} (${data.parkingSpotEntity.zone})</p>
+                    <p><strong>Start Time:</strong> ${new Date(data.startTime).toLocaleString()}</p>
+                    <p><strong>End Time:</strong> ${new Date(data.endTime).toLocaleString()}</p>
+                    <p><strong>Paid:</strong> ${data.isPaid ? 'Yes' : 'No'}</p>
+                    <p><strong>Amount to Pay:</strong> $${data.amountToPay.toFixed(2)}</p>
+                `;
+                if (data.isExtendedMustPay) {
+                    reservationInfo.innerHTML +=
+                        `<p><strong>Amount to Extend:</strong> $${data.amountToExtend.toFixed(2)}</p>`
+                    ;
+                }
+
+                const payButton = document.getElementById('payButton');
+                if (!data.isPaid) {
+                    payButton.style.display = 'block';
+                    payButton.onclick = payReservation;
+                } else {
+                    payButton.style.display = 'none';
+                }
+
+                if (data.isExtendedMustPay) {
+                    payExtendButton.style.display = 'block';
+                    payExtendButton.onclick = payExtension;
+                } else {
+                    payExtendButton.style.display = 'none';
+                }
+
+                const now = new Date();
+                const startTime = new Date(data.startTime);
+
+                if ((startTime - now) / 60000 > 30) {
+                    cancelButton.style.display = 'block';
+                    cancelButton.onclick = () => cancelReservation(data.id);
+                } else {
+                    cancelButton.style.display = 'none';
+                }
+
+                if (!data.isExtendedMustPay) {
+                    extendContainer.style.display = 'block';
+                    extendButton.onclick = () => extendReservation(data.id);
+                } else {
+                    extendContainer.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reservation details:', error);
+                document.getElementById('reservation-info').textContent = 'Error loading reservation details.';
+            });
+    }
+
+    // Оплата бронирования
+    function payReservation() {
+        fetch('http://localhost:8080/reservations/pay', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (!response.ok) {
+                    throw new Error('Payment failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                loadReservation(); // Обновляем информацию после оплаты
+            })
+            .catch(error => {
+                console.error('Error paying reservation:', error);
+                alert('Failed to pay reservation.');
+            });
+    }
+
+    // Оплата бронирования
+    function payExtension() {
+        fetch('http://localhost:8080/reservations/pay-extend', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (!response.ok) {
+                    throw new Error('Payment failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                loadReservation(); // Обновляем информацию после оплаты
+            })
+            .catch(error => {
+                console.error('Error paying reservation:', error);
+                alert('Failed to pay reservation.');
+            });
+    }
+
+    function cancelReservation() {
+        fetch(`http://localhost:8080/reservations`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadReservation();
+            })
+            .catch(error => {
+                console.error('Error canceling reservation:', error);
+                alert('Failed to cancel reservation.');
+            });
+    }
+
+    function extendReservation() {
+        const minutes = document.getElementById('extendTime').value;
+
+        if (!minutes || isNaN(minutes) || minutes <= 0) {
+            alert('Please enter a valid number of minutes.');
+            return;
+        }
+
+        fetch(`http://localhost:8080/reservations?minutes=${minutes}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadReservation();
+            })
+            .catch(error => {
+                console.error('Error extending reservation:', error);
+                alert('Failed to extend reservation.');
+            });
+    }
+    document.getElementById('create-reservation-btn').addEventListener('click', () => {
+        window.location.href = 'create-reservation.html'; // Замените на нужный путь
+    });
+    loadReservation();
+</script>
+</body>
+</html>
