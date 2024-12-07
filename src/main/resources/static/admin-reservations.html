@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Reservations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Admin Panel</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="admin-reservations.html">Reservations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="admin-parking-spots.html">Parking Spots</a>
+                </li>
+            </ul>
+        </div>
+        <button id="logout-button" class="btn btn-outline-light">Logout</button>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h2>Reservations</h2>
+
+    <!-- Filters Section -->
+    <div class="card p-3 mb-4">
+        <h5>Filters</h5>
+        <form id="filter-form" class="row g-3">
+            <div class="col-md-4">
+                <label for="reservationType" class="form-label">Reservation Type</label>
+                <select class="form-select" id="reservationType">
+                    <option value="">All</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="CANCELED">Canceled</option>
+                    <option value="EXPIRED">Completed</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="userId" class="form-label">User ID</label>
+                <input type="number" class="form-control" id="userId" placeholder="Enter User ID">
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Reservations Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>User Info</th>
+                <th>Reservation Type</th>
+                <th>Parking Spot</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Is Paid</th>
+                <th>Amount to Pay</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="reservations-table">
+            <!-- Reservations will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    if (!decodedToken.a.includes('ROLE_ADMIN')) {
+        window.location.href = 'login.html';
+    }
+
+
+    const apiUrl = "http://localhost:8080/admin/reservations"; // Base API URL
+    const reservationsTable = document.getElementById("reservations-table");
+    const filterForm = document.getElementById("filter-form");
+    const reservationTypeSelect = document.getElementById("reservationType");
+    const userIdInput = document.getElementById("userId");
+
+    // Fetch reservations and update the table
+    async function fetchReservations(filters = {}) {
+        let url = `${apiUrl}?`;
+        if (filters.reservationType) url += `reservationType=${filters.reservationType}&`;
+        if (filters.userId) url += `userId=${filters.userId}&`;
+        url = url.replace(/&$/, '');  // удаляет лишний амперсанд в конце, если он есть
+        console.log(url)
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.status === 401) {
+            window.location.href = 'login.html';
+        }
+        if (response.ok) {
+            const reservations = await response.json();
+            renderReservations(reservations);
+        } else {
+            alert("Failed to fetch reservations");
+        }
+    }
+
+    // Render reservations in the table
+    function renderReservations(reservations) {
+        reservationsTable.innerHTML = "";
+        reservations.forEach(reservation => {
+            const { id, userEntity, parkingSpotEntity, startTime, endTime, isPaid, amountToPay, reservationType } = reservation;
+            reservationsTable.innerHTML += `
+            <tr>
+                <td>${id}</td>
+                <td>
+                    User id: ${userEntity.id}<br>
+                    Name: ${userEntity.firstName}<br>
+                    Email: ${userEntity.email}<br>
+                    Cars: ${userEntity.carStates.join(", ")}
+                </td>
+                <td>${reservationType}</td>
+                <td>Zone: ${parkingSpotEntity.zone}<br>Spot: ${parkingSpotEntity.number}</td>
+                <td>${new Date(startTime).toLocaleString()}</td>
+                <td>${new Date(endTime).toLocaleString()}</td>
+                <td>${isPaid ? "Yes" : "No"}</td>
+                <td>$${amountToPay}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteReservation(${id})">Delete</button>
+                </td>
+            </tr>
+        `;
+        });
+    }
+
+    // Delete a reservation
+    async function deleteReservation(id) {
+        const confirmed = confirm("Are you sure you want to delete this reservation?");
+        if (!confirmed) return;
+
+        const response = await fetch(`${apiUrl}/${id}`, {
+            method: "DELETE",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const result = await response.json();
+        if (response.status === 401) {
+            window.location.href = 'login.html';
+        }
+        if (response.ok) {
+            alert(result.message);
+            fetchReservations(); // Refresh the table
+        } else {
+            alert(result.message || "Failed to delete reservation");
+        }
+    }
+
+    // Apply filters
+    filterForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const filters = {
+            reservationType: reservationTypeSelect.value,
+            userId: userIdInput.value,
+        };
+        fetchReservations(filters);
+    });
+    document.getElementById("logout-button").addEventListener("click", function () {
+        // Удаление токена из localStorage
+        localStorage.removeItem("jwtToken");
+
+        // Перенаправление на login.html
+        window.location.href = "login.html";
+    });
+
+    // Initial fetch
+    fetchReservations();
+</script>
+</body>
+</html>

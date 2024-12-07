@@ -38,10 +38,15 @@
 
                 // Сохраняем токен в локальное хранилище
                 localStorage.setItem('jwtToken', token);
-                alert('Login successful! Token saved.');
+                const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                if (decodedToken.a.includes('ROLE_USER')) {
+                    window.location.href = 'profile.html';
+                } else if (decodedToken.a.includes('ROLE_ADMIN')) {
+                    window.location.href = 'admin.html';
+                } else if (decodedToken.a.includes('ROLE_CAMERA')) {
+                    window.location.href = 'operator.html';
+                }
 
-                // Перенаправляем пользователя на другую страницу
-                window.location.href = 'profile.html';
             } else {
                 alert('Login failed. Please check your credentials.');
             }

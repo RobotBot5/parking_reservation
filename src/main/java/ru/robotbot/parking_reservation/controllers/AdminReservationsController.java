@@ -32,7 +32,10 @@ public class AdminReservationsController {
                         "User with id " + userId + " doesn't exist")
                 );
             }
-            return ResponseEntity.ok(reservationService.getAllByUserId(userId));
+            if (reservationType != null)
+                return ResponseEntity.ok(reservationService.getAllByUserIdAndByStatus(userId, reservationType));
+            else
+                return ResponseEntity.ok(reservationService.getAllByUserId(userId));
         }
 
         if (reservationType != null) {

@@ -225,4 +225,12 @@ public class ReservationServiceImpl implements ReservationService {
         reservationRepository.deleteById(id);
         return 0;
     }
+
+    @Override
+    public List<ReservationEntity> getAllByUserIdAndByStatus(Long userId, ReservationType reservationType) {
+        UserEntity userEntity = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return reservationRepository.findAllByUserEntityAndReservationType(userEntity, reservationType);
+    }
 }

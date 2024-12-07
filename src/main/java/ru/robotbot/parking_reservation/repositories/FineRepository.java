@@ -18,10 +18,10 @@ public interface FineRepository extends CrudRepository<FineEntity, Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE FineEntity f SET f.isPaid = true WHERE f.id = :id")
-    void updateIsPaid(Long id);
+    @Query("UPDATE FineEntity f SET f.isPaid = true, f.timeToPay = :timeToPay WHERE f.id = :id")
+    void updateIsPaid(Long id, LocalDateTime timeToPay);
 
 
-    List<FineEntity> findByIsPaidFalseAndTimeToPayBefore(LocalDateTime currentTime);
+    List<FineEntity> findByTimeToPayBefore(LocalDateTime currentTime);
 
 }

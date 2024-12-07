@@ -5,15 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #f8f9fa;">
+    <h1>Мои автомобили</h1>
+    <button id="logout-button" style="padding: 8px 12px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Выйти
+    </button>
+</header>
 <div class="container mt-5">
     <h1>User Profile</h1>
     <div id="profile-container" class="mt-4">
         <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
         <p><strong>First Name:</strong> <span id="firstName"></span></p>
-        <p><strong>Car States:</strong> <span id="carStates"></span></p>
         <p><strong>Email:</strong> <span id="email"></span></p>
+    </div>
+
+    <div id="user-cars-container" class="mt-4">
+        <h3>Your Cars</h3>
+        <ul id="user-cars-list" class="list-group"></ul>
+        <button id="add-car-button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#add-car-modal">Add Car</button>
+    </div>
+
+    <!-- Modal for adding a car -->
+    <div id="add-car-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add a Car</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="car-number-input" type="text" class="form-control" placeholder="Enter car number"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submit-car-button" type="button" class="btn btn-primary">Add Car</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="reservation-container" class="mt-5">
@@ -34,6 +65,15 @@
         </div>
         <button id="payExtendButton" class="btn btn-success mt-3" style="display: none;">Pay for Extension</button>
     </div>
+    <div id="fine-container" class="mt-4">
+        <h2>Fine</h2>
+        <div id="fine-info" class="alert alert-warning" role="alert" style="display: none;">
+            <p><strong>Amount:</strong> $<span id="fineAmount"></span></p>
+            <p><strong>Time to Pay:</strong> <span id="fineTimeToPay"></span></p>
+            <p><strong>Paid:</strong> <span id="fineIsPaid"></span></p>
+            <button id="payFineButton" class="btn btn-success mt-3" style="display: none;">Pay Fine</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -48,27 +88,112 @@
         window.location.href = 'login.html';
     }
 
-    fetch('http://localhost:8080/user', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-        .then(response => {
-            if (response.status === 401) {
-                window.location.href = 'login.html';
+    function fetchUserInfo() {
+        fetch('http://localhost:8080/user', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-            return response.json();
         })
-        .then(data => {
-            document.getElementById('phoneNumber').textContent = data.phoneNumber;
-            document.getElementById('firstName').textContent = data.firstName;
-            document.getElementById('carStates').textContent = data.carStates.join(', ');
-            document.getElementById('email').textContent = data.email;
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('phoneNumber').textContent = data.phoneNumber;
+                document.getElementById('firstName').textContent = data.firstName;
+                document.getElementById('email').textContent = data.email;
+                const cars = data.carStates
+                const carsList = document.getElementById('user-cars-list');
+                carsList.innerHTML = '';
+
+                cars.forEach(car => {
+                    const carItem = document.createElement('li');
+                    carItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                    carItem.innerHTML = `
+                    <span>${car}</span>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCar('${car}')">Delete</button>
+                `;
+                    carsList.appendChild(carItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching user info:', error);
+            });
+    }
+
+    document.getElementById('submit-car-button').addEventListener('click', () => {
+        const carNumber = document.getElementById('car-number-input').value.trim();
+
+        // Client-side validation for car number (e.g., valid format)
+        if (!/^[A-Z]\d{3}[A-Z]{2}\d{2,3}$/.test(carNumber)) {
+            alert('Invalid car number format. Use A111AA11 or A111AA111.');
+            return;
+        }
+
+        const url = `http://localhost:8080/user/car?carState=${encodeURIComponent(carNumber)}`
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         })
-        .catch(error => {
-            console.error('Error fetching user info:', error);
-        });
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('add-car-modal'));
+                    modal.hide();
+                    fetchUserInfo(); // Refresh car list
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error adding car:', error);
+                alert('Failed to add car. Please try again later.');
+            });
+    });
+
+    function deleteCar(carNumber) {
+        if (!confirm(`Are you sure you want to delete car ${carNumber}?`)) return;
+
+        const url = `http://localhost:8080/user/car?carState=${encodeURIComponent(carNumber)}`
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ number: carNumber })
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    fetchUserInfo(); // Refresh car list
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting car:', error);
+                alert('Failed to delete car. Please try again later.');
+            });
+    }
 
     function loadReservation() {
         fetch('http://localhost:8080/reservations', {
@@ -138,7 +263,7 @@
                     cancelButton.style.display = 'none';
                 }
 
-                if (!data.isExtendedMustPay) {
+                if (!data.isExtendedMustPay && document.getElementById('fine-info').style.display !== 'block') {
                     extendContainer.style.display = 'block';
                     extendButton.onclick = () => extendReservation(data.id);
                 } else {
@@ -247,9 +372,108 @@
                 alert('Failed to extend reservation.');
             });
     }
+
+    function loadFine() {
+        fetch('http://localhost:8080/fines', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (response.status === 404) {
+                    // Если штрафа нет, скрываем контейнер
+                    document.getElementById('fine-container').style.display = 'none';
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch fine details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                const fineContainer = document.getElementById('fine-container');
+                const fineInfo = document.getElementById('fine-info');
+                const fineAmount = document.getElementById('fineAmount');
+                const fineTimeToPay = document.getElementById('fineTimeToPay');
+                const fineIsPaid = document.getElementById('fineIsPaid');
+                const payFineButton = document.getElementById('payFineButton');
+
+                fineContainer.style.display = 'block';
+                fineInfo.style.display = 'block';
+
+                fineAmount.textContent = data.amount.toFixed(2);
+                fineTimeToPay.textContent = new Date(data.timeToPay).toLocaleString();
+                fineIsPaid.textContent = data.isPaid ? 'Yes' : 'No';
+
+                // Если штраф не оплачен, показываем кнопку оплаты
+                if (!data.isPaid) {
+                    payFineButton.style.display = 'block';
+                    payFineButton.onclick = payFine;
+                } else {
+                    payFineButton.style.display = 'none';
+                }
+
+                // Если есть штраф, отключаем возможность продлить парковку
+                if (!data.isPaid) {
+                    document.getElementById('extend-reservation-container').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching fine details:', error);
+                document.getElementById('fine-container').style.display = 'none';
+            });
+    }
+
+    function payFine() {
+        fetch('http://localhost:8080/fines', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch fine details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    loadFine(); // Обновляем информацию о штрафе после оплаты
+                    loadReservation(); // Обновляем бронирование
+                } else {
+                    alert('Failed to pay fine: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error paying fine:', error);
+                alert('Failed to pay fine.');
+            });
+    }
+
+
     document.getElementById('create-reservation-btn').addEventListener('click', () => {
         window.location.href = 'create-reservation.html'; // Замените на нужный путь
     });
+    document.getElementById("logout-button").addEventListener("click", function () {
+        // Удаление токена из localStorage
+        localStorage.removeItem("jwtToken");
+
+        // Перенаправление на login.html
+        window.location.href = "login.html";
+    });
+    fetchUserInfo()
+    loadFine();
     loadReservation();
 </script>
 </body>

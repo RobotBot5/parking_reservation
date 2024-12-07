@@ -9,6 +9,7 @@ import ru.robotbot.parking_reservation.repositories.UserRepository;
 import ru.robotbot.parking_reservation.security.UserPrincipal;
 import ru.robotbot.parking_reservation.services.FineService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -39,7 +40,7 @@ public class FineServiceImpl implements FineService {
         if (fineEntity.getIsPaid()) {
             return 2; // Fine is already paid
         }
-        fineRepository.updateIsPaid(fineEntity.getId());
+        fineRepository.updateIsPaid(fineEntity.getId(), LocalDateTime.now().plusMinutes(2));
         return 0;
     }
 }

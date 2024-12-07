@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Operator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Parking Operator</a>
+    </div>
+    <button id="logout-button" class="btn btn-outline-light">Logout</button>
+</nav>
+<!-- Main Content -->
+<div class="container">
+    <h1>Parking Operator Panel</h1>
+    <form id="carForm">
+        <div class="mb-3">
+            <label for="carNumber" class="form-label">Car Number</label>
+            <input type="text" id="carNumber" class="form-control" placeholder="A111AA111" required>
+            <div id="carNumberError" class="form-text text-danger" style="display: none;">Invalid car number format. Use format A111AA111 or A111AA11.</div>
+        </div>
+        <button type="button" id="entryButton" class="btn btn-success me-2">Entry</button>
+        <button type="button" id="exitButton" class="btn btn-danger">Exit</button>
+    </form>
+</div>
+
+<script>
+
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    if (!decodedToken.a.includes('ROLE_CAMERA')) {
+        window.location.href = 'login.html';
+    }
+    // Регулярное выражение для валидации номера машины
+    const carNumberRegex = /^[A-Z]\d{3}[A-Z]{2}\d{2,3}$/;
+
+    // Получаем элементы
+    const carNumberInput = document.getElementById('carNumber');
+    const carNumberError = document.getElementById('carNumberError');
+    const entryButton = document.getElementById('entryButton');
+    const exitButton = document.getElementById('exitButton');
+
+    // Функция отправки запроса
+    async function handleBarrier(url) {
+        const carNumber = carNumberInput.value.trim();
+
+        // Проверка формата номера
+        if (!carNumberRegex.test(carNumber)) {
+            carNumberError.style.display = 'block';
+            return;
+        }
+        carNumberError.style.display = 'none';
+
+        try {
+            const response = await fetch(url + `?carState=${encodeURIComponent(carNumber)}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+
+            // Показать сообщение
+            alert(data.message || 'Unknown response from server');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to connect to the server. Please try again.');
+        }
+    }
+    document.getElementById("logout-button").addEventListener("click", function () {
+        // Удаление токена из localStorage
+        localStorage.removeItem("jwtToken");
+
+        // Перенаправление на login.html
+        window.location.href = "login.html";
+    });
+
+    // Обработчики кнопок
+    entryButton.addEventListener('click', () => handleBarrier('http://localhost:8080/camera/entry'));
+    exitButton.addEventListener('click', () => handleBarrier('http://localhost:8080/camera/exit'));
+</script>
+</body>
+</html>

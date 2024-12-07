@@ -33,4 +33,6 @@ public interface ReservationService {
     int payExtendedTime(UserPrincipal userPrincipal);
 
     int deleteById(Long id);
+
+    List<ReservationEntity> getAllByUserIdAndByStatus(Long userId, ReservationType reservationType);
 }

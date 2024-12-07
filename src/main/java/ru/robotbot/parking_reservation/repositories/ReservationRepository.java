@@ -70,4 +70,6 @@ public interface ReservationRepository extends CrudRepository<ReservationEntity,
     @Transactional
     @Query("UPDATE ReservationEntity r SET r.isExtendedMustPay = false WHERE r.userEntity = :userEntity")
     void updateExtendedPay(UserEntity userEntity);
+
+    List<ReservationEntity> findAllByUserEntityAndReservationType(UserEntity userEntity, ReservationType reservationType);
 }

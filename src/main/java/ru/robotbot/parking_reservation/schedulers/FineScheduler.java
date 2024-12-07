@@ -31,13 +31,19 @@ public class FineScheduler {
     @Scheduled(fixedRate = 60000)
     public void updateOverdueFines() {
         log.info("updateOverdueFines");
-        List<FineEntity> overdueFines = fineRepository.findByIsPaidFalseAndTimeToPayBefore(
+        List<FineEntity> overdueFines = fineRepository.findByTimeToPayBefore(
                 LocalDateTime.now()
         );
 
         for (FineEntity fine : overdueFines) {
-            fine.setAmount(fine.getAmount() + FINE_INCREMENT_AMOUNT);
-            fine.setTimeToPay(LocalDateTime.now().plusMinutes(2));
+            if (fine.getIsPaid()) {
+                fine.setAmount(FINE_INCREMENT_AMOUNT);
+                fine.setIsPaid(false);
+                fine.setTimeToPay(LocalDateTime.now().plusMinutes(2));
+            } else {
+                fine.setAmount(fine.getAmount() + FINE_INCREMENT_AMOUNT);
+                fine.setTimeToPay(LocalDateTime.now().plusMinutes(2));
+            }
 
             fineRepository.save(fine);
         }
@@ -52,20 +58,22 @@ public class FineScheduler {
                         LocalDateTime.now().minusMinutes(15)
                 );
         reservations.forEach(reservationEntity -> {
-            long minutesFromEnd = reservationEntity.getEndTime().until(
-                    LocalDateTime.now(),
-                    ChronoUnit.MINUTES
-            );
-            double amountToPay = minutesFromEnd / 60.0 * reservationEntity.getParkingSpotEntity().getZone().getRate();
-            FineEntity fineToSave = FineEntity.builder()
-                    .amount(amountToPay + FINE_AMOUNT)
-                    .timeToPay(LocalDateTime.now().plusMinutes(2))
-                    .isPaid(false)
-                    .build();
-            fineRepository.save(fineToSave);
-            UserEntity userEntity = reservationEntity.getUserEntity();
-            userEntity.setFine(fineToSave);
-            userRepository.save(userEntity);
+            if (reservationEntity.getUserEntity().getFine() == null) {
+                long minutesFromEnd = reservationEntity.getEndTime().until(
+                        LocalDateTime.now(),
+                        ChronoUnit.MINUTES
+                );
+                double amountToPay = minutesFromEnd / 60.0 * reservationEntity.getParkingSpotEntity().getZone().getRate();
+                FineEntity fineToSave = FineEntity.builder()
+                        .amount(amountToPay + FINE_AMOUNT)
+                        .timeToPay(LocalDateTime.now().plusMinutes(2))
+                        .isPaid(false)
+                        .build();
+                fineRepository.save(fineToSave);
+                UserEntity userEntity = reservationEntity.getUserEntity();
+                userEntity.setFine(fineToSave);
+                userRepository.save(userEntity);
+            }
         });
     }
 }
