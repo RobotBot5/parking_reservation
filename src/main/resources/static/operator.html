@@ -10,21 +10,21 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Parking Operator</a>
+        <a class="navbar-brand" href="#">Оператор парковки</a>
     </div>
-    <button id="logout-button" class="btn btn-outline-light">Logout</button>
+    <button id="logout-button" class="btn btn-outline-light">Выйти</button>
 </nav>
 <!-- Main Content -->
 <div class="container">
-    <h1>Parking Operator Panel</h1>
+    <h1>Панель оператора</h1>
     <form id="carForm">
         <div class="mb-3">
-            <label for="carNumber" class="form-label">Car Number</label>
+            <label for="carNumber" class="form-label">Номер автомобиля</label>
             <input type="text" id="carNumber" class="form-control" placeholder="A111AA111" required>
             <div id="carNumberError" class="form-text text-danger" style="display: none;">Invalid car number format. Use format A111AA111 or A111AA11.</div>
         </div>
-        <button type="button" id="entryButton" class="btn btn-success me-2">Entry</button>
-        <button type="button" id="exitButton" class="btn btn-danger">Exit</button>
+        <button type="button" id="entryButton" class="btn btn-success me-2">Въезд</button>
+        <button type="button" id="exitButton" class="btn btn-danger">Выезд</button>
     </form>
 </div>
 

@@ -8,23 +8,23 @@
 </head>
 <body>
 <div class="container mt-5">
-    <h1>Create Reservation</h1>
+    <h1>Забронировать место</h1>
     <form id="reservation-form" class="mt-4">
         <div class="mb-3">
-            <label for="startTime" class="form-label">Start Time</label>
+            <label for="startTime" class="form-label">Время начала</label>
             <input type="datetime-local" class="form-control" id="startTime" required>
         </div>
         <div class="mb-3">
-            <label for="endTime" class="form-label">End Time</label>
+            <label for="endTime" class="form-label">Время окончания</label>
             <input type="datetime-local" class="form-control" id="endTime" required>
         </div>
         <div class="mb-3">
-            <label for="parkingSpotId" class="form-label">Select Parking Spot</label>
+            <label for="parkingSpotId" class="form-label">Выберете место</label>
             <select class="form-control" id="parkingSpotId" disabled>
-                <option value="">Select time to load spots</option>
+                <option value="">Выберете время для загрузки доступных мест</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Create Reservation</button>
+        <button type="submit" class="btn btn-primary">Забронировать</button>
     </form>
 </div>
 
@@ -76,7 +76,7 @@
                     data.forEach(spot => {
                         const option = document.createElement('option');
                         option.value = spot.id;
-                        option.textContent = `Spot #${spot.number} (${spot.zone}) - $${spot.price}/hour`;
+                        option.textContent = `Место #${spot.number} (${spot.zone}) - ${spot.price} руб./час`;
                         parkingSpotSelect.appendChild(option);
                     });
                 }

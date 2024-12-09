@@ -9,23 +9,23 @@
 </head>
 <body>
 <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #f8f9fa;">
-    <h1>Мои автомобили</h1>
+    <h1>Профиль</h1>
     <button id="logout-button" style="padding: 8px 12px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
         Выйти
     </button>
 </header>
 <div class="container mt-5">
-    <h1>User Profile</h1>
+    <h1>Информация о пользователе</h1>
     <div id="profile-container" class="mt-4">
-        <p><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
-        <p><strong>First Name:</strong> <span id="firstName"></span></p>
-        <p><strong>Email:</strong> <span id="email"></span></p>
+        <p><strong>Номер телефона:</strong> <span id="phoneNumber"></span></p>
+        <p><strong>Имя:</strong> <span id="firstName"></span></p>
+        <p><strong>Почта:</strong> <span id="email"></span></p>
     </div>
 
     <div id="user-cars-container" class="mt-4">
-        <h3>Your Cars</h3>
+        <h3>Ваши автомобили</h3>
         <ul id="user-cars-list" class="list-group"></ul>
-        <button id="add-car-button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#add-car-modal">Add Car</button>
+        <button id="add-car-button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#add-car-modal">Добавить автомобиль</button>
     </div>
 
     <!-- Modal for adding a car -->
@@ -33,45 +33,45 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add a Car</h5>
+                    <h5 class="modal-title">Добавить автомобиль</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input id="car-number-input" type="text" class="form-control" placeholder="Enter car number"/>
+                    <input id="car-number-input" type="text" class="form-control" placeholder="Введите номер автомобиля"/>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="submit-car-button" type="button" class="btn btn-primary">Add Car</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button id="submit-car-button" type="button" class="btn btn-primary">Добавить</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="reservation-container" class="mt-5">
-        <h2>Current Reservation</h2>
+        <h2>Текущее бронирование</h2>
         <div id="reservation-info" class="alert alert-info" role="alert">
-            Loading reservation details...
+            Загрузка...
         </div>
         <!-- Кнопка для создания бронирования, скрыта по умолчанию -->
         <div id="create-reservation-container" class="mt-4" style="display: none;">
-            <button id="create-reservation-btn" class="btn btn-primary">Create a New Reservation</button>
+            <button id="create-reservation-btn" class="btn btn-primary">Забронировать место</button>
         </div>
-        <button id="payButton" class="btn btn-success mt-3" style="display: none;">Pay</button>
-        <button id="cancelButton" class="btn btn-danger mt-3" style="display: none;">Cancel Reservation</button>
+        <button id="payButton" class="btn btn-success mt-3" style="display: none;">Оплатить</button>
+        <button id="cancelButton" class="btn btn-danger mt-3" style="display: none;">Отменить бронирование</button>
         <div id="extend-reservation-container" class="mt-3" style="display: none;">
-            <label for="extendTime" class="form-label">Extend by (minutes):</label>
-            <input id="extendTime" type="number" class="form-control" placeholder="Enter minutes">
-            <button id="extendButton" class="btn btn-warning mt-3">Extend Reservation</button>
+            <label for="extendTime" class="form-label">Продлить бронирование на (минуты):</label>
+            <input id="extendTime" type="number" class="form-control" placeholder="Введите минуты">
+            <button id="extendButton" class="btn btn-warning mt-3">Продлить бронирование</button>
         </div>
-        <button id="payExtendButton" class="btn btn-success mt-3" style="display: none;">Pay for Extension</button>
+        <button id="payExtendButton" class="btn btn-success mt-3" style="display: none;">Оплатить продление</button>
     </div>
     <div id="fine-container" class="mt-4">
-        <h2>Fine</h2>
+        <h2>Штраф</h2>
         <div id="fine-info" class="alert alert-warning" role="alert" style="display: none;">
-            <p><strong>Amount:</strong> $<span id="fineAmount"></span></p>
-            <p><strong>Time to Pay:</strong> <span id="fineTimeToPay"></span></p>
-            <p><strong>Paid:</strong> <span id="fineIsPaid"></span></p>
-            <button id="payFineButton" class="btn btn-success mt-3" style="display: none;">Pay Fine</button>
+            <p><strong>Сумма:</strong> <span id="fineAmount"></span> руб.</p>
+            <p><strong>Оплатить до:</strong> <span id="fineTimeToPay"></span></p>
+            <p><strong>Оплачено:</strong> <span id="fineIsPaid"></span></p>
+            <button id="payFineButton" class="btn btn-success mt-3" style="display: none;">Оплатить</button>
         </div>
     </div>
 </div>
@@ -114,7 +114,7 @@
                     carItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                     carItem.innerHTML = `
                     <span>${car}</span>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCar('${car}')">Delete</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCar('${car}')">Удалить</button>
                 `;
                     carsList.appendChild(carItem);
                 });
@@ -129,7 +129,7 @@
 
         // Client-side validation for car number (e.g., valid format)
         if (!/^[A-Z]\d{3}[A-Z]{2}\d{2,3}$/.test(carNumber)) {
-            alert('Invalid car number format. Use A111AA11 or A111AA111.');
+            alert('Неправильный формат номера. Используйте A111AA11 или A111AA111.');
             return;
         }
 
@@ -164,7 +164,7 @@
     });
 
     function deleteCar(carNumber) {
-        if (!confirm(`Are you sure you want to delete car ${carNumber}?`)) return;
+        if (!confirm(`Вы уверены что хотите удалить автомобиль ${carNumber}?`)) return;
 
         const url = `http://localhost:8080/user/car?carState=${encodeURIComponent(carNumber)}`
         fetch(url, {
@@ -204,7 +204,7 @@
         })
             .then(response => {
                 if (response.status === 404) {
-                    document.getElementById('reservation-info').textContent = 'No reservations found.';
+                    document.getElementById('reservation-info').textContent = 'Нет бронирований.';
                     document.getElementById('create-reservation-container').style.display = 'block';
                     return null;
                 }
@@ -226,15 +226,15 @@
                 const payExtendButton = document.getElementById('payExtendButton');
 
                 reservationInfo.innerHTML = `
-                    <p><strong>Parking Spot:</strong> ${data.parkingSpotEntity.number} (${data.parkingSpotEntity.zone})</p>
-                    <p><strong>Start Time:</strong> ${new Date(data.startTime).toLocaleString()}</p>
-                    <p><strong>End Time:</strong> ${new Date(data.endTime).toLocaleString()}</p>
-                    <p><strong>Paid:</strong> ${data.isPaid ? 'Yes' : 'No'}</p>
-                    <p><strong>Amount to Pay:</strong> $${data.amountToPay.toFixed(2)}</p>
+                    <p><strong>Парковочное место:</strong> ${data.parkingSpotEntity.number} (${data.parkingSpotEntity.zone})</p>
+                    <p><strong>Время начала:</strong> ${new Date(data.startTime).toLocaleString()}</p>
+                    <p><strong>Время окончания:</strong> ${new Date(data.endTime).toLocaleString()}</p>
+                    <p><strong>Оплачено:</strong> ${data.isPaid ? 'Да' : 'Нет'}</p>
+                    <p><strong>Сумма к оплате:</strong> ${data.amountToPay.toFixed(2)} руб.</p>
                 `;
                 if (data.isExtendedMustPay) {
                     reservationInfo.innerHTML +=
-                        `<p><strong>Amount to Extend:</strong> $${data.amountToExtend.toFixed(2)}</p>`
+                        `<p><strong>Сумма к оплате продления:</strong> ${data.amountToExtend.toFixed(2)} руб.</p>`
                     ;
                 }
 
@@ -409,7 +409,7 @@
 
                 fineAmount.textContent = data.amount.toFixed(2);
                 fineTimeToPay.textContent = new Date(data.timeToPay).toLocaleString();
-                fineIsPaid.textContent = data.isPaid ? 'Yes' : 'No';
+                fineIsPaid.textContent = data.isPaid ? 'Да' : 'Нет';
 
                 // Если штраф не оплачен, показываем кнопку оплаты
                 if (!data.isPaid) {

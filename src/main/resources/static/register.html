@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Регистрация</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        // Проверка номера машины
+        function validateCarState(value) {
+            const carStateRegex = /^[A-Z]\d{3}[A-Z]{2}\d{2,3}$/;
+            return carStateRegex.test(value);
+        }
+
+        // Добавление номера машины в список
+        function addCarState() {
+            const carStateInput = document.getElementById("carStateInput");
+            const carStateList = document.getElementById("carStateList");
+            const value = carStateInput.value.trim();
+
+            if (validateCarState(value)) {
+                const li = document.createElement("li");
+                li.textContent = value;
+                li.className = "list-group-item";
+                li.setAttribute("data-car-state", value);
+                carStateList.appendChild(li);
+                carStateInput.value = "";
+            } else {
+                alert("Введите корректный номер машины (формат: A111AA11 или A111AA111).");
+            }
+        }
+
+        // Сбор данных формы и отправка запроса
+        async function submitForm(event) {
+            event.preventDefault(); // Предотвращение стандартной отправки формы
+
+            const phoneNumber = document.querySelector('input[name="phoneNumber"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value.trim();
+            const firstName = document.querySelector('input[name="firstName"]').value.trim();
+            const email = document.querySelector('input[name="email"]').value.trim();
+            const carStates = Array.from(document.querySelectorAll("#carStateList li"))
+                .map(li => li.getAttribute("data-car-state"));
+
+            if (carStates.length === 0) {
+                alert("Добавьте хотя бы один номер машины.");
+                return;
+            }
+
+            const payload = {
+                phoneNumber,
+                password,
+                firstName,
+                email,
+                carStates
+            };
+
+            try {
+                const response = await fetch("http://localhost:8080/auth/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    window.location.href = 'login.html';
+                } else {
+                    const errorData = await response.text();
+                    alert("Ошибка: " + errorData);
+                }
+            } catch (error) {
+                alert("Произошла ошибка: " + error.message);
+            }
+        }
+    </script>
+</head>
+<body class="container py-5">
+<h1 class="text-center mb-4">Регистрация</h1>
+<div class="d-flex justify-content-center align-items-center">
+    <form id="registerForm" class="row g-3" style="width: 100%; max-width: 400px;" onsubmit="submitForm(event)">
+        <div class="col-12">
+            <input type="text" name="phoneNumber" class="form-control" placeholder="Номер телефона" required>
+        </div>
+        <div class="col-12">
+            <input type="password" name="password" class="form-control" placeholder="Пароль" required>
+        </div>
+        <div class="col-12">
+            <input type="text" name="firstName" class="form-control" placeholder="Имя" required>
+        </div>
+        <div class="col-12">
+            <input type="email" name="email" class="form-control" placeholder="Электронная почта" required>
+        </div>
+        <div class="col-12">
+            <label for="carStateInput" class="form-label">Номер машины</label>
+            <div class="input-group">
+                <input type="text" id="carStateInput" class="form-control" placeholder="A111AA11" required>
+                <button type="button" class="btn btn-outline-secondary" onclick="addCarState()">Добавить</button>
+            </div>
+            <ul id="carStateList" class="list-group mt-2"></ul>
+        </div>
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -2,21 +2,29 @@
 <html lang="ru">
 <head>
     <title>Login</title>
+    <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container py-5">
-<h1 class="text-center mb-4">Login</h1>
-<form id="loginForm" class="row g-3">
-    <div class="col-md-6">
-        <input type="text" id="phoneNumber" class="form-control" placeholder="Phone Number" required>
-    </div>
-    <div class="col-md-6">
-        <input type="password" id="password" class="form-control" placeholder="Password" required>
-    </div>
-    <div class="col-12 text-center">
-        <button type="submit" class="btn btn-primary">Login</button>
-    </div>
-</form>
+<h1 class="text-center mb-4">Авторизация</h1>
+<div class="d-flex justify-content-center align-items-center">
+    <form id="loginForm" class="row g-3" style="width: 100%; max-width: 400px;">
+        <div class="col-12">
+            <input type="text" id="phoneNumber" class="form-control" placeholder="Номер телефона" required>
+        </div>
+        <div class="col-12">
+            <input type="password" id="password" class="form-control" placeholder="Пароль" required>
+        </div>
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
+        </div>
+        <div class="col-12 text-center">
+            <button type="button" class="btn btn-secondary w-100" onclick="window.location.href='register.html'">
+                Зарегистрироваться
+            </button>
+        </div>
+    </form>
+</div>
 
 <script>
     document.getElementById('loginForm').addEventListener('submit', async (event) => {
@@ -28,8 +36,8 @@
         try {
             const response = await fetch('http://localhost:8080/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber, password })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phoneNumber, password})
             });
 
             if (response.ok) {
@@ -42,7 +50,7 @@
                 if (decodedToken.a.includes('ROLE_USER')) {
                     window.location.href = 'profile.html';
                 } else if (decodedToken.a.includes('ROLE_ADMIN')) {
-                    window.location.href = 'admin.html';
+                    window.location.href = 'admin-reservations.html';
                 } else if (decodedToken.a.includes('ROLE_CAMERA')) {
                     window.location.href = 'operator.html';
                 }
